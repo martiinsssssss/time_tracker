@@ -13,7 +13,7 @@ export function TimerCard() {
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col items-center gap-4 transition-colors relative overflow-hidden">
       <div
         className={`absolute inset-x-0 top-0 h-1 transition-colors ${
-          running ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
+          running ? 'bg-emerald-500' : 'bg-transparent'
         }`}
       />
       <div className="flex items-center justify-between w-full">
