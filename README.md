@@ -1,25 +1,26 @@
 # Time Tracker
 
-App web local para contabilizar la jornada laboral. Hecha con React + TypeScript + Vite + Tailwind CSS. Todos los datos se guardan en el `localStorage` del navegador, sin backend ni servidor.
+A local web app to track your work hours. Built with React + TypeScript + Vite + Tailwind CSS. All data is stored in the browser's `localStorage` — no backend, no server.
 
-## Funcionalidades
+## Features
 
-- **Cronómetro por intervalos**: inicia y detiene un intervalo de trabajo cuando quieras; cada tramo queda guardado por separado.
-- **Reloj de jornada**: total de horas trabajadas hoy y en la semana, con barra de progreso respecto a tu objetivo configurado.
-- **Historial**: gráfico mensual de horas trabajadas por día (con línea de objetivo diario) y listado de días registrados, expandibles para revisar o editar sus intervalos.
-- **Calendario**: festivos (con preset de Barcelona incluido) y días de vacaciones marcados manualmente, con contador de vacaciones restantes en el año.
-- **Edición manual de intervalos**: corrige la hora de inicio/fin o añade una nota a cualquier intervalo, tanto en "Hoy" como en el Historial.
-- **Modo oscuro**: interruptor en Configuración, con detección inicial de la preferencia del sistema.
-- **Configuración**: horas objetivo por día/semana, días de vacaciones anuales, gestión de festivos (cargar preset, añadir/eliminar), y exportación de una copia de seguridad en JSON.
+- **Dashboard**: a stats overview (today, this week, streak, PTO days left), a start/stop timer, today's workday clock, the calendar, and today's logged intervals — all in one place.
+- **Timer**: start and stop a work interval whenever you like; each stretch is saved as its own entry.
+- **Workday clock**: total hours worked today and this week, with a progress bar against your configured target.
+- **History**: a monthly bar chart of hours worked per day (with a daily-target reference line), plus a list of logged days you can expand to review or edit their intervals.
+- **Calendar**: public holidays (with a ready-made Barcelona preset) and manually marked vacation days, with a running count of PTO days left for the year.
+- **Manual interval editing**: fix the start/end time or add a note to any interval, from the Dashboard or History.
+- **Dark mode**: toggle in Settings, with the system preference detected on first load.
+- **Settings**: daily/weekly target hours, yearly PTO days, holiday management (load a preset, add/remove), and exporting a JSON backup.
 
-## Desarrollo
+## Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Build de producción
+## Production build
 
 ```bash
 npm run build

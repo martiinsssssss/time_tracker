@@ -1,14 +1,15 @@
 import { useMemo, useState } from 'react';
+import { CalendarDays, ChevronLeft, ChevronRight, PalmtreeIcon } from 'lucide-react';
 import { useHolidays } from '../hooks/useHolidays';
 import { useVacations } from '../hooks/useVacations';
 import { useSettings } from '../hooks/useSettings';
 import { todayKey } from '../lib/time';
 
 const MONTH_NAMES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ];
-const DAY_HEADERS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+const DAY_HEADERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 interface DayCell {
   date: string | null;
@@ -53,34 +54,40 @@ export function Calendar() {
   function nextMonth() {
     setCursor((c) => (c.month === 11 ? { year: c.year + 1, month: 0 } : { year: c.year, month: c.month + 1 }));
   }
+  function goToday() {
+    setCursor({ year: now.getFullYear(), month: now.getMonth() });
+  }
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg">Calendario</h2>
-        <div className="flex items-center gap-3 text-sm">
-          <span className="text-slate-500 dark:text-slate-400">
-            Vacaciones restantes {cursor.year}:{' '}
-            <span className="font-bold text-slate-800 dark:text-slate-100">{remaining}</span> / {settings.vacationDaysTotal}
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg flex items-center gap-2">
+          <span className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+            <CalendarDays size={17} strokeWidth={2.25} />
           </span>
+          Calendar
+        </h2>
+        <div className="flex items-center gap-2 text-sm bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full font-medium">
+          <PalmtreeIcon size={15} />
+          {remaining} / {settings.vacationDaysTotal} PTO days left ({cursor.year})
         </div>
       </div>
 
       <div className="flex items-center justify-between mb-3">
-        <button onClick={prevMonth} className="px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
-          ‹
+        <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
+          <ChevronLeft size={18} />
         </button>
-        <span className="font-semibold text-slate-700 dark:text-slate-200">
+        <button onClick={goToday} className="font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
           {MONTH_NAMES[cursor.month]} {cursor.year}
-        </span>
-        <button onClick={nextMonth} className="px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
-          ›
+        </button>
+        <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
+          <ChevronRight size={18} />
         </button>
       </div>
 
       <div className="grid grid-cols-7 gap-1 text-center text-xs text-slate-400 dark:text-slate-500 mb-1">
-        {DAY_HEADERS.map((h) => (
-          <div key={h}>{h}</div>
+        {DAY_HEADERS.map((h, i) => (
+          <div key={i}>{h}</div>
         ))}
       </div>
 
@@ -94,7 +101,7 @@ export function Calendar() {
             <button
               key={cell.date}
               onClick={() => toggle(cell.date!)}
-              title={isHoliday ? holidaySet.get(cell.date) : isVacation ? 'Vacaciones' : undefined}
+              title={isHoliday ? holidaySet.get(cell.date) : isVacation ? 'Vacation' : undefined}
               className={[
                 'aspect-square rounded-lg text-sm flex items-center justify-center transition-colors',
                 isHoliday ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 font-semibold' : '',
@@ -110,14 +117,14 @@ export function Calendar() {
         })}
       </div>
 
-      <div className="flex items-center gap-4 mt-4 text-xs text-slate-500 dark:text-slate-400">
-        <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded bg-amber-100 dark:bg-amber-900/50 inline-block" /> Festivo
+      <div className="flex flex-wrap items-center gap-4 mt-4 text-xs text-slate-500 dark:text-slate-400">
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded bg-amber-100 dark:bg-amber-900/50 inline-block" /> Holiday
         </span>
-        <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded bg-indigo-600 inline-block" /> Vacaciones
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded bg-indigo-600 inline-block" /> Vacation
         </span>
-        <span className="text-slate-400 dark:text-slate-500">Haz clic en un día para marcar/desmarcar vacaciones</span>
+        <span className="text-slate-400 dark:text-slate-500">Click a day to mark/unmark it as vacation</span>
       </div>
     </div>
   );

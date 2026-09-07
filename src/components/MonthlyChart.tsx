@@ -56,10 +56,10 @@ export function MonthlyChart({ intervals, year, month, targetHours, now }: Props
   return (
     <div>
       <div className="flex items-baseline justify-between mb-3">
-        <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">
+        <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tabular-nums">
           {formatHM(monthTotalMs)}
         </span>
-        <span className="text-slate-400 dark:text-slate-500 text-sm">total del mes</span>
+        <span className="text-slate-400 dark:text-slate-500 text-sm">month total</span>
       </div>
 
       <div className="relative">
@@ -141,10 +141,10 @@ export function MonthlyChart({ intervals, year, month, targetHours, now }: Props
 
       <div className="flex items-center gap-4 mt-2 text-xs text-slate-500 dark:text-slate-400">
         <span className="flex items-center gap-1">
-          <span className="w-3 h-1.5 rounded-sm bg-indigo-400 dark:bg-indigo-600 inline-block" /> Horas trabajadas
+          <span className="w-3 h-1.5 rounded-sm bg-indigo-400 dark:bg-indigo-600 inline-block" /> Hours worked
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-0.5 rounded-sm bg-amber-400 dark:bg-amber-500 inline-block" /> Objetivo diario ({targetHours}h)
+          <span className="w-3 h-0.5 rounded-sm bg-amber-400 dark:bg-amber-500 inline-block" /> Daily target ({targetHours}h)
         </span>
       </div>
     </div>

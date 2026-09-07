@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Briefcase, Download, Moon, Palette, PartyPopper, Sun } from 'lucide-react';
 import { useSettings } from '../hooks/useSettings';
 import { useHolidays } from '../hooks/useHolidays';
 import { listPresets } from '../lib/holidaysData';
@@ -20,8 +21,8 @@ export function SettingsPage() {
     const added = loadPreset(city, year);
     setPresetMsg(
       added > 0
-        ? `Se añadieron ${added} festivos de ${city} ${year}.`
-        : `Los festivos de ${city} ${year} ya estaban cargados.`
+        ? `Added ${added} holidays from ${city} ${year}.`
+        : `${city} ${year} holidays were already loaded.`
     );
   }
 
@@ -54,11 +55,19 @@ export function SettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4">Apariencia</h2>
+        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4 flex items-center gap-2">
+          <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+            <Palette size={17} strokeWidth={2.25} />
+          </span>
+          Appearance
+        </h2>
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Modo oscuro</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500">Cambia el tema de toda la aplicación</p>
+          <div className="flex items-center gap-2">
+            {theme === 'dark' ? <Moon size={16} className="text-slate-400" /> : <Sun size={16} className="text-amber-400" />}
+            <div>
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Dark mode</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">Switch the theme for the whole app</p>
+            </div>
           </div>
           <button
             onClick={toggleTheme}
@@ -78,10 +87,15 @@ export function SettingsPage() {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4">Jornada laboral</h2>
+        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4 flex items-center gap-2">
+          <span className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <Briefcase size={17} strokeWidth={2.25} />
+          </span>
+          Workday
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-            Horas objetivo por día
+            Target hours per day
             <input
               type="number"
               min={0.5}
@@ -93,7 +107,7 @@ export function SettingsPage() {
             />
           </label>
           <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-            Horas objetivo por semana
+            Target hours per week
             <input
               type="number"
               min={0}
@@ -105,7 +119,7 @@ export function SettingsPage() {
             />
           </label>
           <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-            Días de vacaciones al año
+            Vacation days per year
             <input
               type="number"
               min={0}
@@ -120,11 +134,16 @@ export function SettingsPage() {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4">Festivos</h2>
+        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4 flex items-center gap-2">
+          <span className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <PartyPopper size={17} strokeWidth={2.25} />
+          </span>
+          Holidays
+        </h2>
 
         {presets.length > 0 && (
           <div className="mb-4">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Cargar preset:</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Load a preset:</p>
             <div className="flex flex-wrap gap-2">
               {presets.map((p) => (
                 <button
@@ -142,7 +161,7 @@ export function SettingsPage() {
 
         <div className="flex flex-wrap items-end gap-2 mb-4">
           <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-            Fecha
+            Date
             <input
               type="date"
               value={newDate}
@@ -151,12 +170,12 @@ export function SettingsPage() {
             />
           </label>
           <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300 flex-1 min-w-[160px]">
-            Nombre
+            Name
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Ej. Sant Jordi"
+              placeholder="e.g. Company anniversary"
               className={inputClass}
             />
           </label>
@@ -164,13 +183,13 @@ export function SettingsPage() {
             onClick={handleAddHoliday}
             className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700"
           >
-            Añadir
+            Add
           </button>
         </div>
 
         <ul className="flex flex-col gap-1 max-h-64 overflow-y-auto">
           {holidays.length === 0 && (
-            <li className="text-slate-400 dark:text-slate-500 text-sm">No hay festivos configurados todavía.</li>
+            <li className="text-slate-400 dark:text-slate-500 text-sm">No holidays configured yet.</li>
           )}
           {holidays.map((h) => (
             <li
@@ -192,15 +211,21 @@ export function SettingsPage() {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4">Datos</h2>
+        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4 flex items-center gap-2">
+          <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+            <Download size={17} strokeWidth={2.25} />
+          </span>
+          Data
+        </h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-          Todos los datos se guardan localmente en este navegador. Puedes exportar una copia de seguridad.
+          Everything is stored locally in this browser. You can export a backup at any time.
         </p>
         <button
           onClick={exportData}
-          className="px-4 py-2 rounded-lg bg-slate-800 dark:bg-slate-700 text-white font-medium hover:bg-slate-900 dark:hover:bg-slate-600"
+          className="px-4 py-2 rounded-lg bg-slate-800 dark:bg-slate-700 text-white font-medium hover:bg-slate-900 dark:hover:bg-slate-600 flex items-center gap-2"
         >
-          Exportar copia de seguridad (JSON)
+          <Download size={16} />
+          Export backup (JSON)
         </button>
       </div>
     </div>

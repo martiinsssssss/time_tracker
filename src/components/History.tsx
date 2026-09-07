@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { BarChart3, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { useIntervals } from '../hooks/useIntervals';
 import { useSettings } from '../hooks/useSettings';
 import { useNow } from '../hooks/useNow';
@@ -7,8 +8,8 @@ import { MonthlyChart } from './MonthlyChart';
 import { IntervalRow } from './IntervalRow';
 
 const MONTH_NAMES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
 export function History() {
@@ -47,16 +48,21 @@ export function History() {
     <div className="flex flex-col gap-6">
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg">Historial</h2>
+          <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg flex items-center gap-2">
+            <span className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <BarChart3 size={17} strokeWidth={2.25} />
+            </span>
+            History
+          </h2>
           <div className="flex items-center gap-2">
-            <button onClick={prevMonth} className="px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
-              ‹
+            <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
+              <ChevronLeft size={18} />
             </button>
             <span className="font-semibold text-slate-700 dark:text-slate-200 min-w-[120px] text-center">
               {MONTH_NAMES[cursor.month]} {cursor.year}
             </span>
-            <button onClick={nextMonth} className="px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
-              ›
+            <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
+              <ChevronRight size={18} />
             </button>
           </div>
         </div>
@@ -71,16 +77,16 @@ export function History() {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4">Días registrados</h2>
+        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4">Logged days</h2>
         {daysWithData.length === 0 ? (
           <p className="text-slate-400 dark:text-slate-500 text-sm">
-            No hay ningún día registrado este mes todavía.
+            No days logged yet this month.
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
             {daysWithData.map((d) => {
               const isOpen = expanded === d.date;
-              const label = new Date(d.date + 'T00:00:00').toLocaleDateString('es-ES', {
+              const label = new Date(d.date + 'T00:00:00').toLocaleDateString('en-GB', {
                 weekday: 'long',
                 day: 'numeric',
                 month: 'long',
@@ -91,19 +97,23 @@ export function History() {
                     onClick={() => setExpanded(isOpen ? null : d.date)}
                     className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                   >
-                    <span className="text-sm text-slate-600 dark:text-slate-300 capitalize flex items-center gap-2">
+                    <span className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2">
                       {label}
                       {d.date === today && (
                         <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 px-1.5 py-0.5 rounded-full">
-                          HOY
+                          TODAY
                         </span>
                       )}
                     </span>
                     <span className="flex items-center gap-3">
-                      <span className="font-mono font-semibold text-slate-700 dark:text-slate-200 text-sm">
+                      <span className="font-mono font-semibold text-slate-700 dark:text-slate-200 text-sm tabular-nums">
                         {formatHM(d.ms)}
                       </span>
-                      <span className="text-slate-300 dark:text-slate-600 text-xs">{isOpen ? '▲' : '▼'}</span>
+                      {isOpen ? (
+                        <ChevronUp size={16} className="text-slate-300 dark:text-slate-600" />
+                      ) : (
+                        <ChevronDown size={16} className="text-slate-300 dark:text-slate-600" />
+                      )}
                     </span>
                   </button>
                   {isOpen && (

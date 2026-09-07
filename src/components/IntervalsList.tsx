@@ -1,3 +1,4 @@
+import { ListChecks } from 'lucide-react';
 import { useIntervals } from '../hooks/useIntervals';
 import { useNow } from '../hooks/useNow';
 import { dateKeyOf, todayKey } from '../lib/time';
@@ -14,10 +15,15 @@ export function IntervalsList() {
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-      <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4">Intervalos de hoy</h2>
+      <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4 flex items-center gap-2">
+        <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <ListChecks size={17} strokeWidth={2.25} />
+        </span>
+        Today's intervals
+      </h2>
       {todays.length === 0 ? (
         <p className="text-slate-400 dark:text-slate-500 text-sm">
-          Todavía no has registrado ningún intervalo hoy.
+          No intervals logged yet today. Hit "Start interval" whenever you begin working.
         </p>
       ) : (
         <ul className="flex flex-col gap-2 max-h-72 overflow-y-auto">

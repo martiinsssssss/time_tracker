@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Pencil, Trash2 } from 'lucide-react';
 import type { TimeInterval } from '../types';
 import { formatHMS, fromDatetimeLocal, intervalDuration, toDatetimeLocal } from '../lib/time';
 
@@ -44,7 +45,7 @@ export function IntervalRow({ interval, now, onUpdate, onRemove }: Props) {
       <li className="bg-slate-50 dark:bg-slate-700/50 rounded-lg px-3 py-2 text-sm flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <label className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
-            Inicio
+            Start
             <input
               type="datetime-local"
               value={draftStart}
@@ -54,7 +55,7 @@ export function IntervalRow({ interval, now, onUpdate, onRemove }: Props) {
           </label>
           {!isRunning && (
             <label className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
-              Fin
+              End
               <input
                 type="datetime-local"
                 value={draftEnd}
@@ -68,7 +69,7 @@ export function IntervalRow({ interval, now, onUpdate, onRemove }: Props) {
           type="text"
           value={draftLabel}
           onChange={(e) => setDraftLabel(e.target.value)}
-          placeholder="Nota / proyecto (opcional)"
+          placeholder="Note / project (optional)"
           className="border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-md px-2 py-1 text-xs w-full"
         />
         <div className="flex justify-end gap-2">
@@ -76,13 +77,13 @@ export function IntervalRow({ interval, now, onUpdate, onRemove }: Props) {
             onClick={() => setEditing(false)}
             className="px-3 py-1 rounded-md text-xs font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600"
           >
-            Cancelar
+            Cancel
           </button>
           <button
             onClick={save}
             className="px-3 py-1 rounded-md text-xs font-medium bg-indigo-600 text-white hover:bg-indigo-700"
           >
-            Guardar
+            Save
           </button>
         </div>
       </li>
@@ -92,28 +93,28 @@ export function IntervalRow({ interval, now, onUpdate, onRemove }: Props) {
   return (
     <li className="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg px-3 py-2 text-sm">
       <span className="text-slate-600 dark:text-slate-300 flex-1 min-w-0">
-        {fmt(interval.start)} – {interval.end ? fmt(interval.end) : 'en marcha'}
+        {fmt(interval.start)} – {interval.end ? fmt(interval.end) : 'running'}
         {interval.label && (
           <span className="ml-2 text-slate-400 dark:text-slate-500 truncate">· {interval.label}</span>
         )}
       </span>
-      <span className="font-mono font-semibold text-slate-700 dark:text-slate-200 shrink-0">
+      <span className="font-mono font-semibold text-slate-700 dark:text-slate-200 shrink-0 tabular-nums">
         {formatHMS(intervalDuration(interval, now))}
       </span>
       <span className="flex items-center gap-2 shrink-0">
         <button
           onClick={startEdit}
           className="text-slate-300 dark:text-slate-500 hover:text-indigo-500 transition-colors"
-          title="Editar intervalo"
+          title="Edit interval"
         >
-          ✎
+          <Pencil size={14} />
         </button>
         <button
           onClick={() => onRemove(interval.id)}
           className="text-slate-300 dark:text-slate-500 hover:text-rose-500 transition-colors"
-          title="Eliminar intervalo"
+          title="Delete interval"
         >
-          ✕
+          <Trash2 size={14} />
         </button>
       </span>
     </li>

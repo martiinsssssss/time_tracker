@@ -74,3 +74,20 @@ export function toDatetimeLocal(iso: string): string {
 export function fromDatetimeLocal(value: string): string {
   return new Date(value).toISOString();
 }
+
+/** Number of consecutive days (ending today or yesterday) with at least one logged interval. */
+export function computeStreak(intervals: TimeInterval[], now: number = Date.now()): number {
+  const daysWithTime = new Set(
+    intervals.filter((i) => intervalDuration(i, now) > 0).map((i) => dateKeyOf(i.start))
+  );
+  const cursor = new Date(now);
+  if (!daysWithTime.has(todayKey(cursor))) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  let streak = 0;
+  while (daysWithTime.has(todayKey(cursor))) {
+    streak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
