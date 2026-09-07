@@ -21,6 +21,9 @@ export function formatHMS(ms: number): string {
 
 export function formatHM(ms: number): string {
   const totalMinutes = Math.max(0, Math.round(ms / 60000));
+  // A short interval (a few seconds) would otherwise round down to "0h 00m",
+  // which reads as "nothing was tracked" even though time was logged.
+  if (ms > 0 && totalMinutes === 0) return '< 1m';
   const h = Math.floor(totalMinutes / 60);
   const m = totalMinutes % 60;
   return `${h}h ${String(m).padStart(2, '0')}m`;
