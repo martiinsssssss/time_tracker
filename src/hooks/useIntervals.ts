@@ -50,5 +50,15 @@ export function useIntervals() {
     [setIntervals]
   );
 
-  return { intervals, running, start, stop, toggle, remove, addManual };
+  /** Manually correct an interval's start/end/label (e.g. forgot to stop the timer). */
+  const update = useCallback(
+    (id: string, patch: Partial<Pick<TimeInterval, 'start' | 'end' | 'label'>>) => {
+      setIntervals((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, ...patch } : i))
+      );
+    },
+    [setIntervals]
+  );
+
+  return { intervals, running, start, stop, toggle, remove, addManual, update };
 }

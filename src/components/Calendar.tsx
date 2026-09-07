@@ -55,30 +55,30 @@ export function Calendar() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h2 className="text-slate-800 font-bold text-lg">Calendario</h2>
+        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg">Calendario</h2>
         <div className="flex items-center gap-3 text-sm">
-          <span className="text-slate-500">
+          <span className="text-slate-500 dark:text-slate-400">
             Vacaciones restantes {cursor.year}:{' '}
-            <span className="font-bold text-slate-800">{remaining}</span> / {settings.vacationDaysTotal}
+            <span className="font-bold text-slate-800 dark:text-slate-100">{remaining}</span> / {settings.vacationDaysTotal}
           </span>
         </div>
       </div>
 
       <div className="flex items-center justify-between mb-3">
-        <button onClick={prevMonth} className="px-2 py-1 rounded hover:bg-slate-100 text-slate-500">
+        <button onClick={prevMonth} className="px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
           ‹
         </button>
-        <span className="font-semibold text-slate-700">
+        <span className="font-semibold text-slate-700 dark:text-slate-200">
           {MONTH_NAMES[cursor.month]} {cursor.year}
         </span>
-        <button onClick={nextMonth} className="px-2 py-1 rounded hover:bg-slate-100 text-slate-500">
+        <button onClick={nextMonth} className="px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
           ›
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-xs text-slate-400 mb-1">
+      <div className="grid grid-cols-7 gap-1 text-center text-xs text-slate-400 dark:text-slate-500 mb-1">
         {DAY_HEADERS.map((h) => (
           <div key={h}>{h}</div>
         ))}
@@ -97,10 +97,10 @@ export function Calendar() {
               title={isHoliday ? holidaySet.get(cell.date) : isVacation ? 'Vacaciones' : undefined}
               className={[
                 'aspect-square rounded-lg text-sm flex items-center justify-center transition-colors',
-                isHoliday ? 'bg-amber-100 text-amber-700 font-semibold' : '',
+                isHoliday ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 font-semibold' : '',
                 isVacation ? 'bg-indigo-600 text-white font-semibold' : '',
-                !isHoliday && !isVacation && cell.isWeekend ? 'text-slate-300' : '',
-                !isHoliday && !isVacation && !cell.isWeekend ? 'text-slate-600 hover:bg-slate-100' : '',
+                !isHoliday && !isVacation && cell.isWeekend ? 'text-slate-300 dark:text-slate-600' : '',
+                !isHoliday && !isVacation && !cell.isWeekend ? 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700' : '',
                 isToday ? 'ring-2 ring-indigo-400' : '',
               ].join(' ')}
             >
@@ -110,14 +110,14 @@ export function Calendar() {
         })}
       </div>
 
-      <div className="flex items-center gap-4 mt-4 text-xs text-slate-500">
+      <div className="flex items-center gap-4 mt-4 text-xs text-slate-500 dark:text-slate-400">
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded bg-amber-100 inline-block" /> Festivo
+          <span className="w-3 h-3 rounded bg-amber-100 dark:bg-amber-900/50 inline-block" /> Festivo
         </span>
         <span className="flex items-center gap-1">
           <span className="w-3 h-3 rounded bg-indigo-600 inline-block" /> Vacaciones
         </span>
-        <span className="text-slate-400">Haz clic en un día para marcar/desmarcar vacaciones</span>
+        <span className="text-slate-400 dark:text-slate-500">Haz clic en un día para marcar/desmarcar vacaciones</span>
       </div>
     </div>
   );

@@ -62,3 +62,15 @@ export function totalDurationForWeek(intervals: TimeInterval[], reference: Date,
 export function isoNow(): string {
   return new Date().toISOString();
 }
+
+/** Converts an ISO datetime string to the value <input type="datetime-local"> expects, in local time. */
+export function toDatetimeLocal(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/** Converts an <input type="datetime-local"> value (local time, no timezone) back to an ISO string. */
+export function fromDatetimeLocal(value: string): string {
+  return new Date(value).toISOString();
+}

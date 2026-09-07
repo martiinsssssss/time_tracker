@@ -9,17 +9,17 @@ export function TimerCard() {
   const elapsed = running ? intervalDuration(running, now) : 0;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col items-center gap-4">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col items-center gap-4 transition-colors">
       <div className="flex items-center justify-between w-full">
-        <h2 className="text-slate-800 font-bold text-lg">Cronómetro</h2>
+        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg">Cronómetro</h2>
         {running && (
-          <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full tracking-wide">
+          <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-full tracking-wide">
             EN MARCHA
           </span>
         )}
       </div>
 
-      <div className="text-6xl font-mono font-extrabold tracking-tighter text-indigo-600 py-6">
+      <div className="text-6xl font-mono font-extrabold tracking-tighter text-indigo-600 dark:text-indigo-400 py-6">
         {formatHMS(elapsed)}
       </div>
 
@@ -34,7 +34,7 @@ export function TimerCard() {
         {running ? 'Detener intervalo' : 'Iniciar intervalo'}
       </button>
 
-      <p className="text-slate-400 text-sm text-center">
+      <p className="text-slate-400 dark:text-slate-500 text-sm text-center">
         Cada vez que inicias y detienes se guarda como un intervalo de trabajo independiente.
       </p>
     </div>
