@@ -131,6 +131,27 @@ export function SettingsPage() {
             />
           </label>
         </div>
+
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+          <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300 max-w-xs">
+            Rounding margin (minutes)
+            <input
+              type="number"
+              min={0}
+              max={60}
+              step={1}
+              value={settings.roundingMarginMinutes}
+              onChange={(e) => update({ roundingMarginMinutes: Math.max(0, Number(e.target.value)) })}
+              className={inputClass}
+            />
+          </label>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 max-w-md">
+            When you stop the timer, if your total for the day lands within this many minutes of
+            your daily target ({settings.workdayHours}h), it rounds to exactly the target instead
+            of the raw time — e.g. with a 15-minute margin, 7h 47m rounds up to 8h and 8h 10m
+            rounds down to 8h. Set to 0 to turn this off.
+          </p>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">

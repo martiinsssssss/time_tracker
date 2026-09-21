@@ -1,13 +1,30 @@
 import { Play, Square, Timer as TimerIcon } from 'lucide-react';
 import { useIntervals } from '../hooks/useIntervals';
+import { useSettings } from '../hooks/useSettings';
 import { useNow } from '../hooks/useNow';
-import { formatHMS, intervalDuration } from '../lib/time';
+import { formatHMS, intervalDuration, roundedStopTime } from '../lib/time';
 
 export function TimerCard() {
-  const { running, toggle } = useIntervals();
+  const { intervals, running, toggle } = useIntervals();
+  const { settings } = useSettings();
   const now = useNow(1000);
 
   const elapsed = running ? intervalDuration(running, now) : 0;
+
+  function handleToggle() {
+    if (running) {
+      const endIso = roundedStopTime(
+        intervals,
+        running,
+        settings.workdayHours,
+        settings.roundingMarginMinutes,
+        Date.now()
+      );
+      toggle(endIso);
+    } else {
+      toggle();
+    }
+  }
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col items-center gap-4 transition-colors relative overflow-hidden">
@@ -36,7 +53,7 @@ export function TimerCard() {
       </div>
 
       <button
-        onClick={toggle}
+        onClick={handleToggle}
         className={`w-full py-4 rounded-xl font-bold text-white text-lg shadow flex items-center justify-center gap-2 transition-colors ${
           running
             ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200 dark:shadow-none'
@@ -49,6 +66,8 @@ export function TimerCard() {
 
       <p className="text-slate-400 dark:text-slate-500 text-sm text-center">
         Every start/stop is saved as its own work interval, so you can track your day in pieces.
+        {settings.roundingMarginMinutes > 0 &&
+          ` If you land within ${settings.roundingMarginMinutes}m of your ${settings.workdayHours}h target when you stop, it rounds to the target.`}
       </p>
     </div>
   );

@@ -94,3 +94,32 @@ export function computeStreak(intervals: TimeInterval[], now: number = Date.now(
   }
   return streak;
 }
+
+/**
+ * If stopping `running` right now would land the day's total within
+ * `marginMinutes` of `targetHours`, returns an adjusted ISO end time that
+ * makes the total land exactly on the target (rounding up when just under,
+ * down when just over). Otherwise returns the raw "now" end time.
+ * `marginMinutes <= 0` disables rounding entirely.
+ */
+export function roundedStopTime(
+  intervals: TimeInterval[],
+  running: TimeInterval,
+  targetHours: number,
+  marginMinutes: number,
+  now: number = Date.now()
+): string {
+  const rawEndIso = new Date(now).toISOString();
+  if (marginMinutes <= 0) return rawEndIso;
+
+  const day = dateKeyOf(running.start);
+  const totalMs = totalDurationForDay(intervals, day, now);
+  const targetMs = targetHours * 3_600_000;
+  const diffMs = targetMs - totalMs; // positive: currently under target, negative: over
+
+  if (Math.abs(diffMs) > marginMinutes * 60_000) return rawEndIso;
+
+  const startMs = new Date(running.start).getTime();
+  const adjustedMs = Math.max(startMs, now + diffMs);
+  return new Date(adjustedMs).toISOString();
+}

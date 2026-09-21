@@ -25,16 +25,22 @@ export function useIntervals() {
     [setIntervals]
   );
 
-  const stop = useCallback(() => {
-    setIntervals((prev) =>
-      prev.map((i) => (i.end === null ? { ...i, end: isoNow() } : i))
-    );
-  }, [setIntervals]);
+  const stop = useCallback(
+    (endIso?: string) => {
+      setIntervals((prev) =>
+        prev.map((i) => (i.end === null ? { ...i, end: endIso ?? isoNow() } : i))
+      );
+    },
+    [setIntervals]
+  );
 
-  const toggle = useCallback(() => {
-    if (running) stop();
-    else start();
-  }, [running, start, stop]);
+  const toggle = useCallback(
+    (stopEndIso?: string) => {
+      if (running) stop(stopEndIso);
+      else start();
+    },
+    [running, start, stop]
+  );
 
   const remove = useCallback(
     (id: string) => {
