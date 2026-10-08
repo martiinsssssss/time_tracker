@@ -29,6 +29,15 @@ export function formatHM(ms: number): string {
   return `${h}h ${String(m).padStart(2, '0')}m`;
 }
 
+/** Compact duration: "4h", "1h 20m", "45m". */
+export function formatShort(ms: number): string {
+  const totalMinutes = Math.max(0, Math.round(ms / 60000));
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  if (h === 0) return `${m}m`;
+  return m === 0 ? `${h}h` : `${h}h ${String(m).padStart(2, '0')}m`;
+}
+
 export function intervalDuration(interval: TimeInterval, now: number = Date.now()): number {
   const start = new Date(interval.start).getTime();
   const end = interval.end ? new Date(interval.end).getTime() : now;
@@ -100,7 +109,7 @@ export function computeStreak(intervals: TimeInterval[], now: number = Date.now(
  * `marginMinutes` of `targetHours`, returns an adjusted ISO end time that
  * makes the total land exactly on the target (rounding up when just under,
  * down when just over). Otherwise returns the raw "now" end time.
- * `marginMinutes <= 0` disables rounding entirely.
+ * `marginMinutes <= 0` or `targetHours <= 0` (e.g. a day off) disables rounding.
  */
 export function roundedStopTime(
   intervals: TimeInterval[],
@@ -110,7 +119,7 @@ export function roundedStopTime(
   now: number = Date.now()
 ): string {
   const rawEndIso = new Date(now).toISOString();
-  if (marginMinutes <= 0) return rawEndIso;
+  if (marginMinutes <= 0 || targetHours <= 0) return rawEndIso;
 
   const day = dateKeyOf(running.start);
   const totalMs = totalDurationForDay(intervals, day, now);

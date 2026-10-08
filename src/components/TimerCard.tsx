@@ -2,12 +2,14 @@ import { Play, Square, Timer as TimerIcon } from 'lucide-react';
 import { useIntervals } from '../hooks/useIntervals';
 import { useSettings } from '../hooks/useSettings';
 import { useNow } from '../hooks/useNow';
-import { formatHMS, intervalDuration, roundedStopTime } from '../lib/time';
+import { useWeekPlan } from '../hooks/useWeekPlan';
+import { formatHMS, formatShort, intervalDuration, roundedStopTime } from '../lib/time';
 
 export function TimerCard() {
   const { intervals, running, toggle } = useIntervals();
   const { settings } = useSettings();
   const now = useNow(1000);
+  const { todayTargetMs } = useWeekPlan(now);
 
   const elapsed = running ? intervalDuration(running, now) : 0;
 
@@ -16,7 +18,7 @@ export function TimerCard() {
       const endIso = roundedStopTime(
         intervals,
         running,
-        settings.workdayHours,
+        todayTargetMs / 3_600_000,
         settings.roundingMarginMinutes,
         Date.now()
       );
@@ -67,7 +69,8 @@ export function TimerCard() {
       <p className="text-slate-400 dark:text-slate-500 text-sm text-center">
         Every start/stop is saved as its own work interval, so you can track your day in pieces.
         {settings.roundingMarginMinutes > 0 &&
-          ` If you land within ${settings.roundingMarginMinutes}m of your ${settings.workdayHours}h target when you stop, it rounds to the target.`}
+          todayTargetMs > 0 &&
+          ` If you land within ${settings.roundingMarginMinutes}m of today's ${formatShort(todayTargetMs)} target when you stop, it rounds to the target.`}
       </p>
     </div>
   );

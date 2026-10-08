@@ -27,3 +27,26 @@ export interface HolidayEntry {
   date: string; // YYYY-MM-DD
   name: string;
 }
+
+/**
+ * A stretch of time you can't work (e.g. classes). The hours it covers,
+ * minus any break inside it, lower that day's target and must be made up
+ * on other days of the same week — they never reduce the weekly target.
+ */
+export interface OutOfOfficeBlock {
+  id: string;
+  /** 'weekly' repeats on `weekday` every week; 'date' applies to one `date` */
+  kind: 'weekly' | 'date';
+  /** 0 = Sunday … 6 = Saturday (only for kind 'weekly') */
+  weekday?: number;
+  /** YYYY-MM-DD (only for kind 'date') */
+  date?: string;
+  /** HH:MM */
+  start: string;
+  /** HH:MM */
+  end: string;
+  /** HH:MM — optional break inside the block that doesn't count as lost */
+  breakStart?: string;
+  breakEnd?: string;
+  label?: string;
+}

@@ -1,24 +1,25 @@
 import { Clock3 } from 'lucide-react';
-import { useIntervals } from '../hooks/useIntervals';
 import { useNow } from '../hooks/useNow';
-import { useSettings } from '../hooks/useSettings';
-import { formatHM, totalDurationForDay, totalDurationForWeek, todayKey } from '../lib/time';
+import { useWeekPlan } from '../hooks/useWeekPlan';
+import { formatHM, formatShort } from '../lib/time';
 
 export function DailyClock() {
-  const { intervals } = useIntervals();
-  const { settings } = useSettings();
   const now = useNow(1000);
+  const plan = useWeekPlan(now);
 
-  const today = todayKey();
-  const dayMs = totalDurationForDay(intervals, today, now);
-  const weekMs = totalDurationForWeek(intervals, new Date(now), now);
+  const dayMs = plan.today.workedMs;
+  const weekMs = plan.workedMs;
 
-  const dayTargetMs = settings.workdayHours * 3600_000;
-  const weekTargetMs = settings.weeklyTargetHours * 3600_000;
+  const dayTargetMs = plan.todayTargetMs;
+  const weekTargetMs = plan.targetMs;
 
   const dayPct = dayTargetMs > 0 ? Math.min(100, (dayMs / dayTargetMs) * 100) : 0;
   const weekPct = weekTargetMs > 0 ? Math.min(100, (weekMs / weekTargetMs) * 100) : 0;
   const dayComplete = dayTargetMs > 0 && dayMs >= dayTargetMs;
+
+  const dayNotes: string[] = [];
+  if (plan.today.outOfOfficeMs > 0) dayNotes.push(`${formatHM(plan.today.outOfOfficeMs)} out of office`);
+  if (plan.today.makeUpMs > 0) dayNotes.push(`+${formatHM(plan.today.makeUpMs)} to make up`);
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col gap-6 transition-colors">
@@ -34,7 +35,9 @@ export function DailyClock() {
           <span className="text-3xl font-extrabold text-slate-800 dark:text-slate-100 tabular-nums">
             {formatHM(dayMs)}
           </span>
-          <span className="text-slate-400 dark:text-slate-500 text-sm">target {settings.workdayHours}h</span>
+          <span className="text-slate-400 dark:text-slate-500 text-sm">
+            {dayTargetMs > 0 ? `target ${formatShort(dayTargetMs)}` : 'day off'}
+          </span>
         </div>
         <div className="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
           <div
@@ -42,6 +45,9 @@ export function DailyClock() {
             style={{ width: `${dayPct}%` }}
           />
         </div>
+        {dayNotes.length > 0 && (
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{dayNotes.join(' · ')}</p>
+        )}
         {dayComplete && (
           <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
             Daily goal reached 🎉
@@ -52,7 +58,7 @@ export function DailyClock() {
       <div>
         <div className="flex items-baseline justify-between mb-1">
           <span className="text-xl font-bold text-slate-700 dark:text-slate-200 tabular-nums">{formatHM(weekMs)}</span>
-          <span className="text-slate-400 dark:text-slate-500 text-sm">week · target {settings.weeklyTargetHours}h</span>
+          <span className="text-slate-400 dark:text-slate-500 text-sm">week · target {formatShort(weekTargetMs)}</span>
         </div>
         <div className="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
           <div
@@ -60,6 +66,9 @@ export function DailyClock() {
             style={{ width: `${weekPct}%` }}
           />
         </div>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+          {formatShort(plan.remainingMs)} left this week
+        </p>
       </div>
     </div>
   );

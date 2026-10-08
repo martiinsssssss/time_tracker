@@ -5,7 +5,7 @@ interface Props {
   label: string;
   value: string;
   hint?: string;
-  accent?: 'indigo' | 'emerald' | 'amber' | 'rose';
+  accent?: 'indigo' | 'emerald' | 'amber' | 'rose' | 'sky';
 }
 
 const ACCENTS: Record<NonNullable<Props['accent']>, string> = {
@@ -13,6 +13,7 @@ const ACCENTS: Record<NonNullable<Props['accent']>, string> = {
   emerald: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400',
   amber: 'bg-amber-50 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400',
   rose: 'bg-rose-50 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400',
+  sky: 'bg-sky-50 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400',
 };
 
 export function StatTile({ icon: Icon, label, value, hint, accent = 'indigo' }: Props) {

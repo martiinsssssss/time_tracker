@@ -3,7 +3,9 @@ import { CalendarDays, ChevronLeft, ChevronRight, PalmtreeIcon } from 'lucide-re
 import { useHolidays } from '../hooks/useHolidays';
 import { useVacations } from '../hooks/useVacations';
 import { useSettings } from '../hooks/useSettings';
-import { todayKey } from '../lib/time';
+import { useOutOfOffice } from '../hooks/useOutOfOffice';
+import { formatShort, todayKey } from '../lib/time';
+import { blockLostMinutes, blocksForDate } from '../lib/week';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -38,6 +40,7 @@ export function Calendar() {
   const { holidays } = useHolidays();
   const { vacationDates, toggle } = useVacations();
   const { settings } = useSettings();
+  const { blocks } = useOutOfOffice();
 
   const holidaySet = useMemo(() => new Map(holidays.map((h) => [h.date, h.name])), [holidays]);
   const vacationSet = useMemo(() => new Set(vacationDates), [vacationDates]);
@@ -97,13 +100,17 @@ export function Calendar() {
           const isHoliday = holidaySet.has(cell.date);
           const isVacation = vacationSet.has(cell.date);
           const isToday = cell.date === today;
+          const outOfOffice = !cell.isWeekend && !isHoliday && !isVacation ? blocksForDate(blocks, cell.date) : [];
+          const outOfOfficeTitle = outOfOffice
+            .map((b) => `Out of office ${b.start}–${b.end}${b.label ? ` (${b.label})` : ''} · ${formatShort(blockLostMinutes(b) * 60_000)} lost`)
+            .join('\n');
           return (
             <button
               key={cell.date}
               onClick={() => toggle(cell.date!)}
-              title={isHoliday ? holidaySet.get(cell.date) : isVacation ? 'Vacation' : undefined}
+              title={isHoliday ? holidaySet.get(cell.date) : isVacation ? 'Vacation' : outOfOfficeTitle || undefined}
               className={[
-                'aspect-square rounded-lg text-sm flex items-center justify-center transition-colors',
+                'relative aspect-square rounded-lg text-sm flex items-center justify-center transition-colors',
                 isHoliday ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 font-semibold' : '',
                 isVacation ? 'bg-indigo-600 text-white font-semibold' : '',
                 !isHoliday && !isVacation && cell.isWeekend ? 'text-slate-300 dark:text-slate-600' : '',
@@ -112,6 +119,9 @@ export function Calendar() {
               ].join(' ')}
             >
               {cell.day}
+              {outOfOffice.length > 0 && (
+                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-sky-500" />
+              )}
             </button>
           );
         })}
@@ -123,6 +133,9 @@ export function Calendar() {
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded bg-indigo-600 inline-block" /> Vacation
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 inline-block" /> Out of office
         </span>
         <span className="text-slate-400 dark:text-slate-500">Click a day to mark/unmark it as vacation</span>
       </div>
