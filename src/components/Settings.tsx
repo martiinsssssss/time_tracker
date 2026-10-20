@@ -6,8 +6,10 @@ import { listPresets } from '../lib/holidaysData';
 import { useIntervals } from '../hooks/useIntervals';
 import { useTheme } from '../hooks/useTheme';
 import { useOutOfOffice } from '../hooks/useOutOfOffice';
+import { useWeekPlan } from '../hooks/useWeekPlan';
+import { useNow } from '../hooks/useNow';
 import { blockLostMinutes, parseHM } from '../lib/week';
-import { formatHM } from '../lib/time';
+import { formatHM, formatSigned, weekStartKey } from '../lib/time';
 import type { OutOfOfficeBlock } from '../types';
 
 const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -24,7 +26,18 @@ export function SettingsPage() {
   const { holidays, loadPreset, addHoliday, removeHoliday } = useHolidays();
   const { intervals } = useIntervals();
   const { theme, toggle: toggleTheme } = useTheme();
-  const { blocks, addBlock, removeBlock } = useOutOfOffice();
+  const { blocks, skips, addBlock, removeBlock } = useOutOfOffice();
+  const { carryInMs } = useWeekPlan(useNow(60_000));
+
+  // The sign is kept locally too, so picking "−" sticks while the amount is still 0.
+  const [signChoice, setSignChoice] = useState(settings.balanceInitialMinutes < 0 ? -1 : 1);
+  const balanceSign = settings.balanceInitialMinutes === 0 ? signChoice : Math.sign(settings.balanceInitialMinutes);
+  const balanceAbs = Math.abs(settings.balanceInitialMinutes);
+  function setInitialBalance(sign: number, hours: number, minutes: number) {
+    const total = Math.max(0, Math.floor(hours || 0)) * 60 + Math.max(0, Math.floor(minutes || 0));
+    setSignChoice(sign);
+    update({ balanceInitialMinutes: total === 0 ? 0 : sign * total });
+  }
   const presets = listPresets();
 
   const [newDate, setNewDate] = useState('');
@@ -87,6 +100,7 @@ export function SettingsPage() {
       holidays,
       vacationDates: JSON.parse(localStorage.getItem('tt.vacationDates') ?? '[]'),
       outOfOffice: blocks,
+      outOfOfficeSkips: skips,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -199,6 +213,78 @@ export function SettingsPage() {
             and make-up hours), it rounds to exactly the target instead
             of the raw time — e.g. with a 15-minute margin, 7h 47m rounds up to 8h and 8h 10m
             rounds down to 8h. Set to 0 to turn this off.
+          </p>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Hour bank</h3>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mb-3 max-w-md">
+            Hours worked above or below each week's target carry over to the next week: being
+            ahead lowers this week's target, being behind raises it. Only complete weeks since the
+            start date count.
+          </p>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
+              Start date
+              <input
+                type="date"
+                value={settings.balanceStartDate}
+                onChange={(e) => e.target.value && update({ balanceStartDate: e.target.value })}
+                className={inputClass}
+              />
+            </label>
+            <div className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
+              Initial balance
+              <div className="flex items-center gap-1">
+                <select
+                  value={balanceSign}
+                  onChange={(e) => setInitialBalance(Number(e.target.value), Math.floor(balanceAbs / 60), balanceAbs % 60)}
+                  className={inputClass}
+                  aria-label="Balance sign"
+                >
+                  <option value={1}>+</option>
+                  <option value={-1}>−</option>
+                </select>
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={Math.floor(balanceAbs / 60)}
+                  onChange={(e) => setInitialBalance(balanceSign, Number(e.target.value), balanceAbs % 60)}
+                  className={`${inputClass} w-20`}
+                  aria-label="Initial balance hours"
+                />
+                <span className="text-slate-400">h</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={59}
+                  step={1}
+                  value={balanceAbs % 60}
+                  onChange={(e) => setInitialBalance(balanceSign, Math.floor(balanceAbs / 60), Number(e.target.value))}
+                  className={`${inputClass} w-20`}
+                  aria-label="Initial balance minutes"
+                />
+                <span className="text-slate-400">m</span>
+              </div>
+            </div>
+            <button
+              onClick={() => update({ balanceStartDate: weekStartKey(), balanceInitialMinutes: 0 })}
+              className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700"
+            >
+              Reset to 0 from this week
+            </button>
+          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-3">
+            Current balance:{' '}
+            <span
+              className={`font-semibold tabular-nums ${
+                carryInMs > 0 ? 'text-emerald-600 dark:text-emerald-400' : carryInMs < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-600 dark:text-slate-300'
+              }`}
+            >
+              {formatSigned(carryInMs)}
+            </span>{' '}
+            <span className="text-xs text-slate-400 dark:text-slate-500">(carried into this week)</span>
           </p>
         </div>
       </div>

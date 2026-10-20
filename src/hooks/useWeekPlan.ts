@@ -8,7 +8,7 @@ import { buildWeekPlan } from '../lib/week';
 /** The current week's adaptive plan (targets, make-up hours, time left). */
 export function useWeekPlan(now: number) {
   const { intervals } = useIntervals();
-  const { blocks } = useOutOfOffice();
+  const { blocks, skips } = useOutOfOffice();
   const { holidays } = useHolidays();
   const { vacationDates } = useVacations();
   const { settings } = useSettings();
@@ -16,6 +16,7 @@ export function useWeekPlan(now: number) {
   return buildWeekPlan({
     intervals,
     blocks,
+    skips,
     holidayDates: holidays.map((h) => h.date),
     vacationDates,
     settings,

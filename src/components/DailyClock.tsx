@@ -11,7 +11,7 @@ export function DailyClock() {
   const weekMs = plan.workedMs;
 
   const dayTargetMs = plan.todayTargetMs;
-  const weekTargetMs = plan.targetMs;
+  const weekTargetMs = plan.effectiveTargetMs;
 
   const dayPct = dayTargetMs > 0 ? Math.min(100, (dayMs / dayTargetMs) * 100) : 0;
   const weekPct = weekTargetMs > 0 ? Math.min(100, (weekMs / weekTargetMs) * 100) : 0;
@@ -20,6 +20,8 @@ export function DailyClock() {
   const dayNotes: string[] = [];
   if (plan.today.outOfOfficeMs > 0) dayNotes.push(`${formatHM(plan.today.outOfOfficeMs)} out of office`);
   if (plan.today.makeUpMs > 0) dayNotes.push(`+${formatHM(plan.today.makeUpMs)} to make up`);
+  if (plan.today.makeUpMs < 0) dayNotes.push(`−${formatHM(-plan.today.makeUpMs)} since you're ahead`);
+  if (plan.today.workedDuringClass) dayNotes.push('worked during class');
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col gap-6 transition-colors">

@@ -1,14 +1,20 @@
 import { CalendarRange, PalmtreeIcon, PartyPopper } from 'lucide-react';
 import { useNow } from '../hooks/useNow';
 import { useWeekPlan } from '../hooks/useWeekPlan';
-import { formatHM, formatShort } from '../lib/time';
+import { useOutOfOffice } from '../hooks/useOutOfOffice';
+import { formatHM, formatShort, formatSigned } from '../lib/time';
+import { skipKey } from '../lib/week';
 
 const WEEKDAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function WeekCard() {
   const now = useNow(1000);
   const plan = useWeekPlan(now);
+  const { setSkipped } = useOutOfOffice();
   const weekdays = plan.days.filter((d) => d.offReason !== 'weekend');
+  const makeUpDays = plan.days.filter((d) => !d.isPast && d.makeUpMs > 0).map((d) => WEEKDAY_NAMES[d.weekday]);
+  // Sub-minute differences come from rounding each day to the minute — not worth a message.
+  const showAhead = Math.abs(plan.aheadMs) >= 60_000;
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
@@ -24,9 +30,24 @@ export function WeekCard() {
             {formatHM(plan.remainingMs)} <span className="text-base font-semibold text-slate-400 dark:text-slate-500">left</span>
           </p>
           <p className="text-xs text-slate-400 dark:text-slate-500">
-            {formatHM(plan.workedMs)} of {formatShort(plan.targetMs)}
+            {formatHM(plan.workedMs)} of {formatShort(plan.effectiveTargetMs)}
             {plan.daysOff > 0 && ` · ${plan.daysOff} day${plan.daysOff === 1 ? '' : 's'} off`}
           </p>
+          {Math.abs(plan.carryInMs) >= 60_000 && (
+            <p className="text-xs text-slate-400 dark:text-slate-500">
+              From previous weeks:{' '}
+              <span className={`font-semibold ${plan.carryInMs > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                {formatSigned(plan.carryInMs)}
+              </span>
+            </p>
+          )}
+          {showAhead && plan.remainingWorkingDays > 0 && (
+            <p className={`text-xs font-medium ${plan.aheadMs > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+              {plan.aheadMs > 0
+                ? `You're ${formatHM(plan.aheadMs)} ahead — remaining days lowered`
+                : `${formatHM(-plan.aheadMs)} to make up${makeUpDays.length > 0 ? ` — spread over ${makeUpDays.join(', ')}` : ''}`}
+            </p>
+          )}
         </div>
       </div>
 
@@ -82,7 +103,7 @@ export function WeekCard() {
                 )}
               </p>
 
-              {(day.outOfOfficeMs > 0 || (!day.isPast && day.makeUpMs > 0)) && (
+              {(day.outOfOfficeMs > 0 || (!day.isPast && day.makeUpMs !== 0)) && (
                 <div className="flex flex-wrap gap-x-2 text-[11px] font-medium">
                   {day.outOfOfficeMs > 0 && (
                     <span className="text-sky-600 dark:text-sky-400">{formatShort(day.outOfOfficeMs)} out</span>
@@ -90,7 +111,23 @@ export function WeekCard() {
                   {!day.isPast && day.makeUpMs > 0 && (
                     <span className="text-rose-600 dark:text-rose-400">+{formatShort(day.makeUpMs)} make-up</span>
                   )}
+                  {!day.isPast && day.makeUpMs < 0 && (
+                    <span className="text-emerald-600 dark:text-emerald-400">−{formatShort(-day.makeUpMs)}</span>
+                  )}
                 </div>
+              )}
+
+              {day.workedDuringClass && (
+                <p className="text-[11px] font-medium text-sky-600 dark:text-sky-400">Worked during class</p>
+              )}
+
+              {day.blocks.length > 0 && (
+                <button
+                  onClick={() => setSkipped(day.blocks.map((b) => skipKey(b.block.id, day.date)), !day.skipped)}
+                  className="self-start text-[11px] font-medium px-2 py-0.5 rounded-md border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/40 transition-colors"
+                >
+                  {day.skipped ? 'Undo skip' : 'Skip class'}
+                </button>
               )}
             </div>
           );

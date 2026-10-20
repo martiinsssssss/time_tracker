@@ -5,7 +5,7 @@ import { useVacations } from '../hooks/useVacations';
 import { useSettings } from '../hooks/useSettings';
 import { useOutOfOffice } from '../hooks/useOutOfOffice';
 import { formatShort, todayKey } from '../lib/time';
-import { blockLostMinutes, blocksForDate } from '../lib/week';
+import { blockLostMinutes, blocksForDate, skipKey } from '../lib/week';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -40,7 +40,8 @@ export function Calendar() {
   const { holidays } = useHolidays();
   const { vacationDates, toggle } = useVacations();
   const { settings } = useSettings();
-  const { blocks } = useOutOfOffice();
+  const { blocks, skips } = useOutOfOffice();
+  const skipSet = useMemo(() => new Set(skips), [skips]);
 
   const holidaySet = useMemo(() => new Map(holidays.map((h) => [h.date, h.name])), [holidays]);
   const vacationSet = useMemo(() => new Set(vacationDates), [vacationDates]);
@@ -101,8 +102,14 @@ export function Calendar() {
           const isVacation = vacationSet.has(cell.date);
           const isToday = cell.date === today;
           const outOfOffice = !cell.isWeekend && !isHoliday && !isVacation ? blocksForDate(blocks, cell.date) : [];
+          const isSkipped = (id: string) => skipSet.has(skipKey(id, cell.date!));
+          const allSkipped = outOfOffice.length > 0 && outOfOffice.every((b) => isSkipped(b.id));
           const outOfOfficeTitle = outOfOffice
-            .map((b) => `Out of office ${b.start}–${b.end}${b.label ? ` (${b.label})` : ''} · ${formatShort(blockLostMinutes(b) * 60_000)} lost`)
+            .map(
+              (b) =>
+                `Out of office ${b.start}–${b.end}${b.label ? ` (${b.label})` : ''} · ` +
+                (isSkipped(b.id) ? 'Class skipped' : `${formatShort(blockLostMinutes(b) * 60_000)} lost`)
+            )
             .join('\n');
           return (
             <button
@@ -120,7 +127,11 @@ export function Calendar() {
             >
               {cell.day}
               {outOfOffice.length > 0 && (
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-sky-500" />
+                <span
+                  className={`absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${
+                    allSkipped ? 'border border-sky-500' : 'bg-sky-500'
+                  }`}
+                />
               )}
             </button>
           );
@@ -136,6 +147,9 @@ export function Calendar() {
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-sky-500 inline-block" /> Out of office
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full border border-sky-500 inline-block" /> Class skipped
         </span>
         <span className="text-slate-400 dark:text-slate-500">Click a day to mark/unmark it as vacation</span>
       </div>

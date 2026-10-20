@@ -21,6 +21,13 @@ export interface Settings {
    * of the raw stopped time. 0 disables rounding.
    */
   roundingMarginMinutes: number;
+  /**
+   * Hour bank: complete weeks from the week of this date (YYYY-MM-DD) up to
+   * last week carry their surplus/deficit into the current week's target.
+   */
+  balanceStartDate: string;
+  /** Signed starting balance for the hour bank, in minutes (positive = ahead). */
+  balanceInitialMinutes: number;
 }
 
 export interface HolidayEntry {

@@ -12,6 +12,11 @@ import { useNow } from '../hooks/useNow';
 import { useWeekPlan } from '../hooks/useWeekPlan';
 import { computeStreak, formatHM, formatShort } from '../lib/time';
 
+function aheadHint(aheadMs: number): string | undefined {
+  if (Math.abs(aheadMs) < 60_000) return undefined;
+  return aheadMs > 0 ? `+${formatHM(aheadMs)} ahead` : `${formatHM(-aheadMs)} to make up`;
+}
+
 export function Dashboard() {
   const { intervals } = useIntervals();
   const { settings } = useSettings();
@@ -29,8 +34,8 @@ export function Dashboard() {
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <StatTile icon={Clock3} label="Worked today" value={formatHM(dayMs)} accent="indigo" />
-        <StatTile icon={TrendingUp} label="Week so far" value={formatHM(plan.workedMs)} hint={`of ${formatShort(plan.targetMs)}`} accent="emerald" />
-        <StatTile icon={Hourglass} label="Left this week" value={formatHM(plan.remainingMs)} accent="sky" />
+        <StatTile icon={TrendingUp} label="Week so far" value={formatHM(plan.workedMs)} hint={`of ${formatShort(plan.effectiveTargetMs)}`} accent="emerald" />
+        <StatTile icon={Hourglass} label="Left this week" value={formatHM(plan.remainingMs)} hint={aheadHint(plan.aheadMs)} accent="sky" />
         <StatTile icon={Flame} label="Current streak" value={`${streak} day${streak === 1 ? '' : 's'}`} accent="amber" />
         <StatTile icon={PalmtreeIcon} label="PTO days left" value={String(remainingVacation)} hint={`of ${settings.vacationDaysTotal}`} accent="rose" />
       </div>

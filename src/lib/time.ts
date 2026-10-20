@@ -38,6 +38,11 @@ export function formatShort(ms: number): string {
   return m === 0 ? `${h}h` : `${h}h ${String(m).padStart(2, '0')}m`;
 }
 
+/** Signed duration: "+1h 00m" / "−1h 00m". */
+export function formatSigned(ms: number): string {
+  return `${ms < 0 ? '−' : '+'}${formatHM(Math.abs(ms))}`;
+}
+
 export function intervalDuration(interval: TimeInterval, now: number = Date.now()): number {
   const start = new Date(interval.start).getTime();
   const end = interval.end ? new Date(interval.end).getTime() : now;
@@ -57,6 +62,11 @@ export function startOfWeek(date: Date, firstDayOfWeek: 0 | 1 = 1): Date {
   d.setDate(d.getDate() - diff);
   d.setHours(0, 0, 0, 0);
   return d;
+}
+
+/** YYYY-MM-DD of the Monday of `date`'s week. */
+export function weekStartKey(date: Date = new Date()): string {
+  return todayKey(startOfWeek(date));
 }
 
 export function totalDurationForWeek(intervals: TimeInterval[], reference: Date, now: number = Date.now()): number {
