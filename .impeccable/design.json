@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-27T09:29:38Z",
+  "title": "Design System: Time Tracker",
+  "extensions": {
+    "colorMeta": {
+      "focus-indigo": { "role": "primary", "displayName": "Focus Indigo", "canonical": "oklch(51.1% 0.262 276.966)", "tonalRamp": ["oklch(25.7% 0.09 281.288)", "oklch(35.9% 0.144 278.697)", "oklch(45.7% 0.24 277.023)", "oklch(51.1% 0.262 276.966)", "oklch(58.5% 0.233 277.117)", "oklch(67.3% 0.182 276.935)", "oklch(87% 0.065 274.039)", "oklch(96.2% 0.018 272.314)"] },
+      "focus-indigo-deep": { "role": "primary", "displayName": "Focus Indigo Deep", "canonical": "oklch(45.7% 0.24 277.023)" },
+      "focus-indigo-bright": { "role": "primary", "displayName": "Focus Indigo Bright", "canonical": "oklch(58.5% 0.233 277.117)" },
+      "focus-indigo-glow": { "role": "primary", "displayName": "Focus Indigo Glow", "canonical": "oklch(67.3% 0.182 276.935)" },
+      "focus-indigo-wash": { "role": "primary", "displayName": "Focus Indigo Wash", "canonical": "oklch(96.2% 0.018 272.314)" },
+      "done-emerald": { "role": "secondary", "displayName": "Done Emerald", "canonical": "oklch(69.6% 0.17 162.48)", "tonalRamp": ["oklch(26.2% 0.051 172.552)", "oklch(37.8% 0.077 168.94)", "oklch(50.8% 0.118 165.612)", "oklch(59.6% 0.145 163.225)", "oklch(69.6% 0.17 162.48)", "oklch(76.5% 0.177 163.223)", "oklch(90.5% 0.093 164.15)", "oklch(97.9% 0.021 166.113)"] },
+      "done-emerald-ink": { "role": "secondary", "displayName": "Done Emerald Ink", "canonical": "oklch(59.6% 0.145 163.225)" },
+      "away-sky": { "role": "secondary", "displayName": "Away Sky", "canonical": "oklch(68.5% 0.169 237.323)", "tonalRamp": ["oklch(29.3% 0.066 243.157)", "oklch(39.1% 0.09 240.876)", "oklch(50% 0.134 242.749)", "oklch(58.8% 0.158 241.966)", "oklch(68.5% 0.169 237.323)", "oklch(74.6% 0.16 232.661)", "oklch(90.1% 0.058 230.902)", "oklch(97.7% 0.013 236.62)"] },
+      "away-sky-ink": { "role": "secondary", "displayName": "Away Sky Ink", "canonical": "oklch(58.8% 0.158 241.966)" },
+      "holiday-amber": { "role": "secondary", "displayName": "Holiday Amber", "canonical": "oklch(76.9% 0.188 70.08)", "tonalRamp": ["oklch(27.9% 0.077 45.635)", "oklch(41.4% 0.112 45.904)", "oklch(55.5% 0.163 48.998)", "oklch(66.6% 0.179 58.318)", "oklch(76.9% 0.188 70.08)", "oklch(82.8% 0.189 84.429)", "oklch(92.4% 0.12 95.746)", "oklch(98.7% 0.022 95.277)"] },
+      "holiday-amber-wash": { "role": "secondary", "displayName": "Holiday Amber Wash", "canonical": "oklch(96.2% 0.059 95.617)" },
+      "owed-rose": { "role": "secondary", "displayName": "Owed Rose", "canonical": "oklch(58.6% 0.253 17.585)", "tonalRamp": ["oklch(27.1% 0.105 12.094)", "oklch(41% 0.159 10.272)", "oklch(51.4% 0.222 16.935)", "oklch(58.6% 0.253 17.585)", "oklch(64.5% 0.246 16.439)", "oklch(71.2% 0.194 13.428)", "oklch(89.2% 0.058 10.001)", "oklch(96.9% 0.015 12.422)"] },
+      "owed-rose-deep": { "role": "secondary", "displayName": "Owed Rose Deep", "canonical": "oklch(51.4% 0.222 16.935)" },
+      "chip-violet": { "role": "tertiary", "displayName": "Chip Violet", "canonical": "oklch(54.1% 0.281 293.009)", "tonalRamp": ["oklch(28.3% 0.141 291.089)", "oklch(38% 0.189 293.745)", "oklch(49.1% 0.27 292.581)", "oklch(54.1% 0.281 293.009)", "oklch(60.6% 0.25 292.717)", "oklch(70.2% 0.183 293.541)", "oklch(89.4% 0.057 293.283)", "oklch(96.9% 0.016 293.756)"] },
+      "paper": { "role": "neutral", "displayName": "Paper", "canonical": "oklch(100% 0 0)" },
+      "desk": { "role": "neutral", "displayName": "Desk", "canonical": "oklch(96.8% 0.007 247.896)", "tonalRamp": ["oklch(12.9% 0.042 264.695)", "oklch(20.8% 0.042 265.755)", "oklch(27.9% 0.041 260.031)", "oklch(37.2% 0.044 257.287)", "oklch(55.4% 0.046 257.417)", "oklch(70.4% 0.04 256.788)", "oklch(92.9% 0.013 255.508)", "oklch(98.4% 0.003 247.858)"] },
+      "well": { "role": "neutral", "displayName": "Well", "canonical": "oklch(98.4% 0.003 247.858)" },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "oklch(92.9% 0.013 255.508)" },
+      "muted-ink": { "role": "neutral", "displayName": "Muted Ink", "canonical": "oklch(70.4% 0.04 256.788)" },
+      "soft-ink": { "role": "neutral", "displayName": "Soft Ink", "canonical": "oklch(55.4% 0.046 257.417)" },
+      "body-ink": { "role": "neutral", "displayName": "Body Ink", "canonical": "oklch(44.6% 0.043 257.281)" },
+      "heading-ink": { "role": "neutral", "displayName": "Heading Ink", "canonical": "oklch(27.9% 0.041 260.031)" },
+      "night-desk": { "role": "neutral", "displayName": "Night Desk", "canonical": "oklch(20.8% 0.042 265.755)" },
+      "night-paper": { "role": "neutral", "displayName": "Night Paper", "canonical": "oklch(27.9% 0.041 260.031)" },
+      "night-hairline": { "role": "neutral", "displayName": "Night Hairline", "canonical": "oklch(37.2% 0.044 257.287)" },
+      "night-heading-ink": { "role": "neutral", "displayName": "Night Heading Ink", "canonical": "oklch(96.8% 0.007 247.896)" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The running timer only (HH:MM:SS, monospace, Focus Indigo). One per screen." },
+      "headline": { "displayName": "Headline", "purpose": "Hero numbers: worked today, hours left this week, monthly total." },
+      "title": { "displayName": "Title", "purpose": "Card headings (after an icon chip) and the Start/Stop button label." },
+      "stat": { "displayName": "Stat", "purpose": "Values inside stat tiles." },
+      "body": { "displayName": "Body", "purpose": "Nav tabs, interval rows, field labels, explanatory copy." },
+      "label": { "displayName": "Label", "purpose": "Stat labels, legends, notes under progress bars, small buttons." },
+      "micro": { "displayName": "Micro", "purpose": "Stat hints and weekday-card badges (out, make-up, Skip class)." }
+    },
+    "shadows": [
+      { "name": "card-whisper", "value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)", "purpose": "Every card, stat tile and the active nav tab, always paired with a 1px hairline border." },
+      { "name": "action-glow-indigo", "value": "0 1px 3px 0 oklch(87% 0.065 274.039), 0 1px 2px -1px oklch(87% 0.065 274.039)", "purpose": "Start interval button in light mode only." },
+      { "name": "action-glow-rose", "value": "0 1px 3px 0 oklch(89.2% 0.058 10.001), 0 1px 2px -1px oklch(89.2% 0.058 10.001)", "purpose": "Stop interval button in light mode only." },
+      { "name": "floating", "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)", "purpose": "Chart tooltip." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1) 150ms", "purpose": "Tailwind default for transition-colors on cards, buttons and theme switching." },
+      { "name": "progress-fill", "value": "transition-all 150ms cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Progress bar width changes." },
+      { "name": "running-pulse", "value": "animate-pulse (2s cubic-bezier(0.4, 0, 0.6, 1) infinite)", "purpose": "The dot inside the RUNNING badge; the only looping animation." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The base container for every section: paper surface, hairline border, whisper shadow, icon chip plus title.",
+      "html": "<div class=\"ds-card\"><h2 class=\"ds-card-title\"><span class=\"ds-icon-chip\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><polyline points=\"12 6 12 12 16.5 12\"/></svg></span>Today's workday</h2><p class=\"ds-card-body\">6h 12m <span>target 8h</span></p></div>",
+      "css": ".ds-card { background: #fff; border: 1px solid oklch(92.9% 0.013 255.508); border-radius: 16px; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); padding: 24px; font-family: system-ui, 'Segoe UI', Roboto, sans-serif; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-card-title { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; font-size: 1.125rem; font-weight: 700; color: oklch(27.9% 0.041 260.031); } .ds-icon-chip { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: oklch(97.9% 0.021 166.113); color: oklch(59.6% 0.145 163.225); } .ds-card-body { margin: 0; font-size: 1.875rem; font-weight: 800; font-variant-numeric: tabular-nums; color: oklch(27.9% 0.041 260.031); } .ds-card-body span { font-size: 0.875rem; font-weight: 400; color: oklch(70.4% 0.04 256.788); margin-left: 8px; }"
+    },
+    {
+      "name": "Stat Tile",
+      "kind": "custom",
+      "refersTo": "stat-tile",
+      "description": "Compact dashboard metric: 40px tinted icon chip, muted label, heavy value, optional hint.",
+      "html": "<div class=\"ds-stat\"><div class=\"ds-stat-icon\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\"/><polyline points=\"16 7 22 7 22 13\"/></svg></div><div><p class=\"ds-stat-label\">Week so far</p><p class=\"ds-stat-value\">28h 40m</p><p class=\"ds-stat-hint\">of 40h</p></div></div>",
+      "css": ".ds-stat { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid oklch(92.9% 0.013 255.508); border-radius: 16px; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); padding: 16px; font-family: system-ui, 'Segoe UI', Roboto, sans-serif; } .ds-stat-icon { flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: oklch(97.9% 0.021 166.113); color: oklch(59.6% 0.145 163.225); } .ds-stat p { margin: 0; } .ds-stat-label { font-size: 0.75rem; font-weight: 500; color: oklch(70.4% 0.04 256.788); } .ds-stat-value { font-size: 1.125rem; font-weight: 800; line-height: 1.25; color: oklch(27.9% 0.041 260.031); font-variant-numeric: tabular-nums; } .ds-stat-hint { font-size: 11px; color: oklch(70.4% 0.04 256.788); }"
+    },
+    {
+      "name": "Primary Button (Start interval)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one hero action: full-width Focus Indigo with a filled play icon and an indigo glow.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><polygon points=\"6 3 20 12 6 21 6 3\"/></svg>Start interval</button>",
+      "css": ".ds-btn-primary { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px; border: none; border-radius: 12px; background: oklch(51.1% 0.262 276.966); color: #fff; font: 700 1.125rem/1.5 system-ui, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 1px 3px 0 oklch(87% 0.065 274.039), 0 1px 2px -1px oklch(87% 0.065 274.039); cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background: oklch(45.7% 0.24 277.023); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(67.3% 0.182 276.935); outline-offset: 2px; }"
+    },
+    {
+      "name": "Stop Button (Stop interval)",
+      "kind": "button",
+      "refersTo": "button-stop",
+      "description": "The same hero button while the timer runs, switched to Owed Rose with a filled square.",
+      "html": "<button class=\"ds-btn-stop\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/></svg>Stop interval</button>",
+      "css": ".ds-btn-stop { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px; border: none; border-radius: 12px; background: oklch(58.6% 0.253 17.585); color: #fff; font: 700 1.125rem/1.5 system-ui, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 1px 3px 0 oklch(89.2% 0.058 10.001), 0 1px 2px -1px oklch(89.2% 0.058 10.001); cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-stop:hover { background: oklch(51.4% 0.222 16.935); } .ds-btn-stop:focus-visible { outline: 2px solid oklch(71.2% 0.194 13.428); outline-offset: 2px; }"
+    },
+    {
+      "name": "Small Buttons (Save / Cancel)",
+      "kind": "button",
+      "refersTo": "button-small",
+      "description": "Inline edit actions: Focus Indigo Save next to a ghost Cancel.",
+      "html": "<div class=\"ds-btn-row\"><button class=\"ds-btn-ghost\">Cancel</button><button class=\"ds-btn-small\">Save</button></div>",
+      "css": ".ds-btn-row { display: flex; gap: 8px; justify-content: flex-end; font-family: system-ui, 'Segoe UI', Roboto, sans-serif; } .ds-btn-small, .ds-btn-ghost { padding: 4px 12px; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-small { background: oklch(51.1% 0.262 276.966); color: #fff; } .ds-btn-small:hover { background: oklch(45.7% 0.24 277.023); } .ds-btn-ghost { background: transparent; color: oklch(55.4% 0.046 257.417); } .ds-btn-ghost:hover { background: oklch(92.9% 0.013 255.508); } .ds-btn-small:focus-visible, .ds-btn-ghost:focus-visible { outline: 2px solid oklch(67.3% 0.182 276.935); outline-offset: 2px; }"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Settings field: label above, hairline-bordered paper input with 8px radius.",
+      "html": "<label class=\"ds-field\">Target hours per day<input class=\"ds-input\" type=\"number\" value=\"8\"></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 4px; font: 400 0.875rem/1.43 system-ui, 'Segoe UI', Roboto, sans-serif; color: oklch(44.6% 0.043 257.281); max-width: 240px; } .ds-input { border: 1px solid oklch(92.9% 0.013 255.508); background: #fff; color: oklch(37.2% 0.044 257.287); border-radius: 8px; padding: 8px 12px; font: inherit; } .ds-input:focus-visible { outline: 2px solid oklch(67.3% 0.182 276.935); outline-offset: 1px; }"
+    },
+    {
+      "name": "Navigation Tabs",
+      "kind": "nav",
+      "refersTo": "nav-tab-active",
+      "description": "Header segmented control: desk-colored track, active tab lifted onto paper in Focus Indigo.",
+      "html": "<nav class=\"ds-nav\"><button class=\"ds-nav-tab is-active\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"9\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"5\" rx=\"1\"/><rect x=\"14\" y=\"12\" width=\"7\" height=\"9\" rx=\"1\"/><rect x=\"3\" y=\"16\" width=\"7\" height=\"5\" rx=\"1\"/></svg>Dashboard</button><button class=\"ds-nav-tab\">History</button><button class=\"ds-nav-tab\">Settings</button></nav>",
+      "css": ".ds-nav { display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; background: oklch(96.8% 0.007 247.896); font-family: system-ui, 'Segoe UI', Roboto, sans-serif; } .ds-nav-tab { display: flex; align-items: center; gap: 6px; padding: 6px 16px; border: none; border-radius: 8px; background: transparent; color: oklch(55.4% 0.046 257.417); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-nav-tab:hover { color: oklch(37.2% 0.044 257.287); } .ds-nav-tab.is-active { background: #fff; color: oklch(51.1% 0.262 276.966); box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); } .ds-nav-tab:focus-visible { outline: 2px solid oklch(67.3% 0.182 276.935); outline-offset: 2px; }"
+    },
+    {
+      "name": "Running Badge",
+      "kind": "chip",
+      "refersTo": "badge-running",
+      "description": "Emerald pill with a pulsing dot shown in the timer card header while an interval runs.",
+      "html": "<span class=\"ds-badge-running\"><span class=\"ds-dot\"></span>RUNNING</span>",
+      "css": ".ds-badge-running { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 9999px; background: oklch(95% 0.052 163.051); color: oklch(50.8% 0.118 165.612); font: 700 0.75rem/1.33 system-ui, 'Segoe UI', Roboto, sans-serif; letter-spacing: 0.025em; } .ds-dot { width: 6px; height: 6px; border-radius: 9999px; background: oklch(69.6% 0.17 162.48); animation: ds-pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; } @keyframes ds-pulse { 50% { opacity: 0.5; } } @media (prefers-reduced-motion: reduce) { .ds-dot { animation: none; } }"
+    },
+    {
+      "name": "Skip Class Chip",
+      "kind": "chip",
+      "refersTo": "chip-skip",
+      "description": "Outlined sky chip inside weekday cards that toggles skipping a class.",
+      "html": "<button class=\"ds-chip-skip\">Skip class</button>",
+      "css": ".ds-chip-skip { padding: 2px 8px; border: 1px solid oklch(90.1% 0.058 230.902); border-radius: 6px; background: transparent; color: oklch(50% 0.134 242.749); font: 500 11px/1.4 system-ui, 'Segoe UI', Roboto, sans-serif; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-chip-skip:hover { background: oklch(97.7% 0.013 236.62); } .ds-chip-skip:focus-visible { outline: 2px solid oklch(68.5% 0.169 237.323); outline-offset: 2px; }"
+    },
+    {
+      "name": "Week Day Card",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "Per-weekday tile in This week: day, progress pill, worked/planned, semantic notes. Today gets an indigo border and wash.",
+      "html": "<div class=\"ds-day is-today\"><div class=\"ds-day-head\">Tue <span>27</span></div><div class=\"ds-track\"><div class=\"ds-fill\" style=\"width:55%\"></div></div><p class=\"ds-day-hours\">2h 12m<span> / 4h</span></p><p class=\"ds-day-notes\"><span class=\"ds-note-sky\">4h out</span></p><button class=\"ds-chip-skip\">Skip class</button></div>",
+      "css": ".ds-day { width: 150px; display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid oklch(92.9% 0.013 255.508); border-radius: 12px; font-family: system-ui, 'Segoe UI', Roboto, sans-serif; } .ds-day.is-today { border-color: oklch(78.5% 0.115 274.713); background: oklch(96.2% 0.018 272.314 / 0.5); } .ds-day-head { font-size: 0.875rem; font-weight: 600; color: oklch(37.2% 0.044 257.287); } .ds-day-head span { font-weight: 400; color: oklch(70.4% 0.04 256.788); } .ds-track { height: 6px; border-radius: 9999px; background: oklch(96.8% 0.007 247.896); overflow: hidden; } .ds-fill { height: 100%; border-radius: 9999px; background: oklch(58.5% 0.233 277.117); } .ds-day p { margin: 0; } .ds-day-hours { font-size: 0.75rem; font-variant-numeric: tabular-nums; color: oklch(44.6% 0.043 257.281); } .ds-day-hours span { color: oklch(70.4% 0.04 256.788); } .ds-day-notes { font-size: 11px; font-weight: 500; } .ds-note-sky { color: oklch(58.8% 0.158 241.966); } .ds-chip-skip { align-self: flex-start; padding: 2px 8px; border: 1px solid oklch(90.1% 0.058 230.902); border-radius: 6px; background: transparent; color: oklch(50% 0.134 242.749); font: 500 11px/1.4 system-ui, sans-serif; cursor: pointer; } .ds-chip-skip:hover { background: oklch(97.7% 0.013 236.62); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Desk Companion",
+    "overview": "Time Tracker sits in a browser tab next to you all day, so it should feel like a friendly object on the desk rather than a corporate dashboard. Soft white cards rest on a cool slate desk, each one opening with a small tinted icon chip and a plain bold title. The surface is rounded and gently lifted, and it never shouts. Warmth comes from the generous 16px corners, the color-coded icon chips and a cheerful accent indigo. The numbers stay calm and exact.\n\nDensity is moderate. The dashboard stacks a row of five stat tiles, then the timer and today's workday side by side, then the week, the calendar and today's intervals, all inside a 1024px column. A glance should answer three questions: is the timer running, how much have I done today, and how much is left this week. Big tabular numbers carry those answers, and everything else steps back into small muted text.\n\nColor carries meaning first and decoration second. Emerald means *done or ahead*, rose means *owed or stop*, sky means *away* (out of office, classes), amber means *holiday or target*, and indigo means *the thing you're acting on now*. The heading icon chips borrow these tints freely, and violet appears only as a chip tint.",
+    "keyCharacteristics": [
+      "White cards (16px radius, 1px hairline border, whisper shadow) on a cool slate desk",
+      "An icon chip before every card title, tinted to the card's subject",
+      "Tabular, monospaced-feeling numbers as the hero of every card",
+      "One accent (Focus Indigo) for action and progress, with semantic tints for state",
+      "Light and dark themes of equal standing"
+    ],
+    "rules": [
+      { "name": "The One Meaning Rule", "body": "Each semantic tint means one thing everywhere: emerald is *done or ahead*, rose is *owed or stop*, sky is *away*, amber is *holiday or target*. Never use emerald for decoration on a number that isn't good news, and never use rose for anything that isn't a deficit or a stop.", "section": "colors" },
+      { "name": "The Paired Theme Rule", "body": "Every color class ships with its `dark:` partner in the same class string. A color without its dark counterpart is a bug.", "section": "colors" },
+      { "name": "The Sacred Numbers Rule", "body": "Every duration is set in tabular figures (`tabular-nums`). Totals read `Xh YYm`, compact plans read `4h` / `1h 20m`, signed balances read `+1h 00m` / `−1h 00m` with a true minus sign, and anything that ticks live reads `HH:MM:SS` in monospace. Use the formatters in `src/lib/time.ts`. Never hand-format durations.", "section": "typography" },
+      { "name": "The Border-Plus-Whisper Rule", "body": "Cards always get both the hairline border and the whisper shadow. Never use a heavier shadow to make one card more important; use content, a semantic top edge or a tint instead.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** give every new card the Border-Plus-Whisper treatment, a 16px radius, 24px padding and an icon chip before its title.",
+      "**Do** pair every color class with its `dark:` counterpart. Dark mode is a first-class theme, not a fallback.",
+      "**Do** set every duration in `tabular-nums` using the `src/lib/time.ts` formatters (`Xh YYm`, `HH:MM:SS`, signed `+`/`−`).",
+      "**Do** keep each semantic tint to its single meaning: emerald for done or ahead, rose for owed or stop, sky for away or classes, amber for holiday or target.",
+      "**Do** use Focus Indigo for the one primary action and the current-moment indicators.",
+      "**Do** keep explanatory text in Muted Ink at 0.75–0.875rem below the number it explains."
+    ],
+    "donts": [
+      "**Don't** use emoji in the UI. Celebrate with color and copy instead (for example, emerald \"Daily goal reached\").",
+      "**Don't** introduce new accent hues. Violet is permitted only as a decorative icon-chip tint.",
+      "**Don't** add colored shadows in dark mode. Every tinted glow takes `dark:shadow-none`.",
+      "**Don't** hand-format durations or use proportional digits for numbers that change.",
+      "**Don't** make one card heavier than the others with a bigger shadow. Use a semantic top edge or a tint."
+    ]
+  }
+}
