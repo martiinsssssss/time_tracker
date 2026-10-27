@@ -42,7 +42,7 @@ export function TodayCard() {
     notes.push({ text: `${formatShort(plan.today.outOfOfficeMs)} out of office`, tone: 'text-sky-700 dark:text-sky-400' });
   if (plan.today.workedDuringClass) notes.push({ text: 'worked during class', tone: 'text-sky-700 dark:text-sky-400' });
   if (plan.today.makeUpMs > 0)
-    notes.push({ text: `includes ${formatShort(plan.today.makeUpMs)} make-up`, tone: 'text-amber-700 dark:text-amber-400' });
+    notes.push({ text: `includes ${formatShort(plan.today.makeUpMs)} make-up`, tone: 'text-slate-600 dark:text-slate-300' });
   if (plan.today.makeUpMs < 0)
     notes.push({ text: `${formatShort(-plan.today.makeUpMs)} less since you're ahead`, tone: 'text-emerald-700 dark:text-emerald-400' });
 
@@ -120,10 +120,10 @@ export function TodayCard() {
             <>
               <p
                 role="timer"
-                aria-label={`Worked today: ${formatHM(workedMs)}`}
-                className="font-mono text-5xl sm:text-6xl font-extrabold tracking-tighter tabular-nums leading-none text-indigo-600 dark:text-indigo-400"
+                aria-label={`Running. Worked today: ${formatHM(workedMs)}`}
+                className="text-5xl sm:text-6xl font-extrabold tracking-tight tabular-nums leading-none text-indigo-600 dark:text-indigo-400"
               >
-                {formatHMS(workedMs)}
+                {formatHM(workedMs)}
               </p>
               <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 tabular-nums">
                 worked today · this interval <span className="font-mono font-semibold text-slate-700 dark:text-slate-200">{formatHMS(elapsed)}</span>

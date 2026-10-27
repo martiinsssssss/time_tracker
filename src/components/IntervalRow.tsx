@@ -75,18 +75,17 @@ export function IntervalRow({ interval, all, now, onUpdate, onRemove, onRestore 
         </span>
         {interval.label && <span className="text-slate-500 dark:text-slate-400 truncate">· {interval.label}</span>}
         {Math.abs(roundedMs) >= 1000 && (
-          <span className="shrink-0 inline-flex items-center gap-1 rounded-md bg-amber-50 dark:bg-amber-400/10 text-amber-800 dark:text-amber-300 text-[11px] font-medium pl-1.5 pr-0.5">
+          <button
+            onClick={() => onUpdate(interval.id, { end: interval.rawEnd, rawEnd: undefined })}
+            aria-label={`Rounded ${roundedMs > 0 ? 'up' : 'down'}; undo to end at ${fmt(interval.rawEnd!)}`}
+            title={`Undo rounding (end at ${fmt(interval.rawEnd!)})`}
+            className="shrink-0 inline-flex items-center gap-1 min-h-6 rounded-md bg-slate-200/70 dark:bg-slate-600/60 text-slate-700 dark:text-slate-200 text-xs font-medium px-2 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+          >
             rounded {roundedMs > 0 ? '+' : '−'}
             {Math.abs(roundedMs) < 60_000 ? '<1m' : formatShort(Math.abs(roundedMs))}
-            <button
-              onClick={() => onUpdate(interval.id, { end: interval.rawEnd, rawEnd: undefined })}
-              aria-label={`Undo rounding, end at ${fmt(interval.rawEnd!)}`}
-              title={`Undo rounding (end at ${fmt(interval.rawEnd!)})`}
-              className="p-0.5 rounded hover:bg-amber-100 dark:hover:bg-amber-400/20 transition-colors"
-            >
-              <Undo2 size={12} aria-hidden />
-            </button>
-          </span>
+            <span className="text-slate-500 dark:text-slate-400">· undo</span>
+            <Undo2 size={12} aria-hidden />
+          </button>
         )}
       </span>
       <span className="font-semibold text-slate-700 dark:text-slate-200 shrink-0 tabular-nums">
@@ -96,7 +95,7 @@ export function IntervalRow({ interval, all, now, onUpdate, onRemove, onRestore 
         <button
           ref={editButtonRef}
           onClick={() => setEditing(true)}
-          className="p-2 rounded-md text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-slate-800 transition-colors"
+          className="p-2.5 rounded-md text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-slate-800 transition-colors"
           aria-label={`Edit interval ${range}`}
           title="Edit interval"
         >
@@ -104,7 +103,7 @@ export function IntervalRow({ interval, all, now, onUpdate, onRemove, onRestore 
         </button>
         <button
           onClick={handleRemove}
-          className="p-2 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-white dark:hover:bg-slate-800 transition-colors"
+          className="p-2.5 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-white dark:hover:bg-slate-800 transition-colors"
           aria-label={`Delete interval ${range}`}
           title="Delete interval"
         >

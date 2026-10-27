@@ -80,7 +80,7 @@ export function WeekCard() {
             </p>
           )}
           {showAhead && plan.remainingWorkingDays > 0 && (
-            <p className={`text-xs font-medium ${plan.aheadMs > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
+            <p className={`text-xs font-medium ${plan.aheadMs > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-300'}`}>
               {plan.aheadMs > 0
                 ? `You're ${formatHM(plan.aheadMs)} ahead — remaining days lowered`
                 : `${formatHM(-plan.aheadMs)} to make up${makeUpDays.length > 0 ? ` — spread over ${makeUpDays.join(', ')}` : ''}`}

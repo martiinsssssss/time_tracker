@@ -106,7 +106,7 @@ export function Calendar() {
             aria-controls="calendar-body"
             className="flex items-center gap-2 rounded-lg -m-1 p-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
           >
-            <span className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+            <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center">
               <CalendarDays size={17} strokeWidth={2.25} aria-hidden />
             </span>
             Calendar
@@ -194,7 +194,7 @@ export function Calendar() {
                     'relative h-10 sm:h-11 rounded-lg text-sm flex items-center justify-center transition-colors tabular-nums',
                     canToggle ? '' : 'cursor-default',
                     isHoliday ? 'bg-amber-100 dark:bg-amber-400/20 text-amber-800 dark:text-amber-200 font-semibold' : '',
-                    isVacation ? 'bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-100 font-semibold hover:bg-slate-300 dark:hover:bg-slate-500' : '',
+                    isVacation ? 'bg-slate-300 dark:bg-slate-500 text-slate-900 dark:text-white font-semibold hover:bg-slate-400/70 dark:hover:bg-slate-400/60' : '',
                     plain && isToday ? 'bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 font-bold' : '',
                     plain && !isToday && cell.isWeekend ? 'bg-slate-50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400' : '',
                     plain && !isToday && !cell.isWeekend ? 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700' : '',
@@ -223,7 +223,7 @@ export function Calendar() {
               <span className="w-3 h-3 rounded bg-amber-100 dark:bg-amber-400/20 inline-block" /> Holiday
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded bg-slate-200 dark:bg-slate-600 inline-block" /> Vacation
+              <span className="w-3 h-3 rounded bg-slate-300 dark:bg-slate-500 inline-block" /> Vacation
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-sky-500 inline-block" /> Out of office

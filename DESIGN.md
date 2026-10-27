@@ -178,10 +178,10 @@ A cool slate neutral world with one confident indigo accent and four semantic ti
 - **Done Emerald** (`done-emerald`, ink `done-emerald-ink`): goal reached, completed day bars, ahead of plan and positive carry-in. Text uses emerald-700 (emerald-400 in dark mode).
 - **Owed Rose** (`owed-rose`, deep `owed-rose-deep`): the Stop button, negative carry-in from previous weeks, form errors and the delete hover.
 - **Away Sky** (`away-sky`, ink `away-sky-ink`): out-of-office time and classes. It covers the calendar dot (filled when the class is attended, hollow when skipped), "Xh out" notes and the Skip class chip. Small text uses sky-700 in light mode.
-- **Holiday Amber** (`holiday-amber`, wash `holiday-amber-wash`): the heads-up tint. It covers public holidays (calendar cell, party icon), the dashed daily-target line in the monthly chart, planned make-up hours ("+1h 33m make-up", "3h 05m to make up") and the "rounded +5m" chip on an interval. Text uses amber-700 to amber-800 in light mode (amber-600 fails contrast at 11px) and amber-200 to amber-400 in dark mode.
+- **Holiday Amber** (`holiday-amber`, wash `holiday-amber-wash`): the heads-up tint. It covers public holidays (calendar cell, party icon), the dashed daily-target line in the monthly chart, and planned make-up hours, but only where they are planned: the weekday cards ("+1h 33m make-up") and the ledger total. Summaries of the same fact (the Today note, the week header line) stay slate so amber keeps its signal. Text uses amber-700 to amber-800 in light mode (amber-600 fails contrast at 11px) and amber-200 to amber-400 in dark mode.
 
 ### Tertiary
-- **Chip Violet** (`chip-violet`): a purely decorative tint for the Calendar heading's icon chip. It carries no meaning and appears nowhere else.
+- **Chip Violet** (`chip-violet`): retired. The Calendar chip is slate like the other neutral sections.
 
 ### Neutral
 - **Desk** (`desk`): the page background behind every card. It also fills progress-bar tracks and the nav segmented control.
@@ -207,7 +207,7 @@ A cool slate neutral world with one confident indigo accent and four semantic ti
 **Character:** one familiar system sans for everything, which keeps the tool native and quiet. A monospace face appears only where digits tick, so the clock reads like a clock.
 
 ### Hierarchy
-- **Display** (800, 3rem → 3.75rem from 640px, line-height 1, tabular): the Today hero. When idle it is today's total in the system sans and Heading Ink. While running it becomes today's total ticking as HH:MM:SS in monospace Focus Indigo, with the current interval as the subline. Only one appears per screen.
+- **Display** (800, 3rem → 3.75rem from 640px, line-height 1, tabular): the Today hero. When idle it is today's total in the system sans and Heading Ink. While running it keeps the same `Xh YYm` shape in Focus Indigo, and the current interval ticks as HH:MM:SS in the subline. Only one appears per screen.
 - **Headline** (800, 1.875rem, tabular): "Xh left" in This week and the monthly total.
 - **Title** (700, 1.125rem): card headings, always preceded by an icon chip. The Start/Stop button uses the same size and weight.
 - **Stat** (800, 1.125rem, tight): values inside stat tiles (History only).
@@ -260,7 +260,7 @@ Tactile and clear.
 
 ### Chips & Badges
 - **Running badge:** an indigo-50 pill with indigo-700 bold uppercase 0.75rem "RUNNING" text and a pulsing 6px indigo dot (still under reduced motion).
-- **Rounded chip:** on an interval whose end the rounding margin moved, an amber-50 chip reads "rounded +5m" with an undo icon that restores the real stop time.
+- **Rounded chip:** on an interval whose end the rounding margin moved, a slate chip button (at least 24px tall) reads "rounded +5m · undo" and restores the real stop time.
 - **Skip class chip:** an outlined chip with a 1px sky-200 border, sky-700 11px text and 6px radius. Hover adds a sky-50 wash. It toggles to "Undo skip".
 - **PTO pill:** a slate-100 pill with slate-700 0.875rem medium text and a palm icon.
 
@@ -292,7 +292,7 @@ A segmented control in the header: a Desk-colored track with 4px padding and 12p
 A 12px-radius bordered tile per weekday. The header shows the weekday with a muted date and an icon if the day is a holiday or vacation. Below it sit a 6px progress pill, "worked / planned" in tabular 0.75rem, and 11px colored notes ("2h out" in sky, "+1h 33m make-up" in amber, "30m less" in emerald). Days before the first logged interval read "Not tracked yet" and don't count against the week. The tile ends with the Skip class chip when a class falls on that day. Today's tile gets an indigo-300 border with an indigo-50/50 wash, and past tiles sit on a Well wash with a lighter border (never reduced opacity, which costs contrast).
 
 ### Calendar Day
-A fixed-height (40px, 44px from 640px) 8px-radius cell. Today is filled with Heading Ink (inverted in dark mode) so it never looks like the focus ring. Weekends get a faint Well wash (text stays Muted Ink), holidays an amber wash, vacation a slate-200 wash, and classes a 6px sky dot (hollow when skipped). Only working days toggle vacation; weekends and holidays are `aria-disabled` but stay focusable so their names are read. One day is tabbable and arrow keys move between days.
+A fixed-height (40px, 44px from 640px) 8px-radius cell. Today is filled with Heading Ink (inverted in dark mode) so it never looks like the focus ring. Weekends get a faint Well wash (text stays Muted Ink), holidays an amber wash, vacation a slate-300 fill, and classes a 6px sky dot (hollow when skipped). Only working days toggle vacation; weekends and holidays are `aria-disabled` but stay focusable so their names are read. One day is tabbable and arrow keys move between days.
 
 ## Do's and Don'ts
 

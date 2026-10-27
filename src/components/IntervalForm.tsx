@@ -1,6 +1,6 @@
 import { useId, useState } from 'react';
 import type { TimeInterval } from '../types';
-import { fromDatetimeLocal, intervalDuration, toDatetimeLocal } from '../lib/time';
+import { formatHM, fromDatetimeLocal, intervalDuration, toDatetimeLocal } from '../lib/time';
 
 interface Props {
   /** Starting values; `end: null` means the interval is still running (no end field). */
@@ -41,6 +41,14 @@ export function IntervalForm({ initial, others, now, saveLabel, onSave, onCancel
   const [draftEnd, setDraftEnd] = useState(() => (initial.end ? toDatetimeLocal(initial.end) : ''));
   const [draftLabel, setDraftLabel] = useState(initial.label ?? '');
   const errorId = useId();
+  // Same-day intervals (the common case) edit as plain times; the date only shows when it matters.
+  const [showDate, setShowDate] = useState(() => !!draftEnd && draftEnd.slice(0, 10) !== draftStart.slice(0, 10));
+
+  const setTime = (value: string, time: string) => (time ? `${value.slice(0, 10)}T${time}` : '');
+  function nudgeEnd(minutes: number) {
+    if (!draftEnd) return;
+    setDraftEnd(toDatetimeLocal(new Date(new Date(draftEnd).getTime() + minutes * 60_000).toISOString()));
+  }
 
   const startMs = draftStart ? new Date(draftStart).getTime() : NaN;
   const endMs = isRunning ? null : draftEnd ? new Date(draftEnd).getTime() : NaN;
@@ -56,7 +64,9 @@ export function IntervalForm({ initial, others, now, saveLabel, onSave, onCancel
   }
 
   const fieldClass =
-    'border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 placeholder:text-slate-500 dark:placeholder:text-slate-400 rounded-md px-2 py-1 text-xs tabular-nums';
+    'border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 placeholder:text-slate-500 dark:placeholder:text-slate-400 rounded-md px-2.5 py-1.5 text-sm tabular-nums';
+  const nudgeClass =
+    'px-2 py-1.5 rounded-md text-xs font-semibold tabular-nums text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors';
 
   return (
     <form
@@ -73,9 +83,14 @@ export function IntervalForm({ initial, others, now, saveLabel, onSave, onCancel
         <label className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
           Start
           <input
-            type="datetime-local"
-            value={draftStart}
-            onChange={(e) => setDraftStart(e.target.value)}
+            type={showDate ? 'datetime-local' : 'time'}
+            value={showDate ? draftStart : draftStart.slice(11)}
+            onChange={(e) => {
+              const next = showDate ? e.target.value : setTime(draftStart, e.target.value);
+              setDraftStart(next);
+              // Without a visible date the end stays on the start's day.
+              if (!showDate && draftEnd) setDraftEnd(`${next.slice(0, 10)}T${draftEnd.slice(11)}`);
+            }}
             aria-invalid={!!error}
             aria-describedby={errorId}
             className={fieldClass}
@@ -86,14 +101,34 @@ export function IntervalForm({ initial, others, now, saveLabel, onSave, onCancel
           <label className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
             End
             <input
-              type="datetime-local"
-              value={draftEnd}
-              onChange={(e) => setDraftEnd(e.target.value)}
+              type={showDate ? 'datetime-local' : 'time'}
+              value={showDate ? draftEnd : draftEnd.slice(11)}
+              onChange={(e) => setDraftEnd(showDate ? e.target.value : setTime(draftStart, e.target.value))}
               aria-invalid={!!error}
               aria-describedby={errorId}
               className={fieldClass}
             />
           </label>
+        )}
+        {!isRunning && (
+          <span className="flex items-center">
+            <button type="button" onClick={() => nudgeEnd(-5)} aria-label="End 5 minutes earlier" className={nudgeClass}>
+              −5m
+            </button>
+            <button type="button" onClick={() => nudgeEnd(5)} aria-label="End 5 minutes later" className={nudgeClass}>
+              +5m
+            </button>
+          </span>
+        )}
+        {!isRunning && endMs !== null && endMs > startMs && (
+          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 tabular-nums" aria-live="polite">
+            = {formatHM(endMs - startMs)}
+          </span>
+        )}
+        {!showDate && (
+          <button type="button" onClick={() => setShowDate(true)} className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+            Change date
+          </button>
         )}
       </div>
       <input
@@ -106,7 +141,7 @@ export function IntervalForm({ initial, others, now, saveLabel, onSave, onCancel
       />
       <div className="flex items-center justify-end gap-2">
         {/* Polite and always mounted: the message is read once it settles, not on every keystroke. */}
-        <p id={errorId} aria-live="polite" className="flex-1 text-xs font-medium text-rose-700 dark:text-rose-300">
+        <p id={errorId} aria-live="polite" className="flex-1 text-sm font-medium text-rose-700 dark:text-rose-300">
           {error}
         </p>
         <button
