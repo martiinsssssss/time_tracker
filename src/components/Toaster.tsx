@@ -11,12 +11,12 @@ function isTyping(target: EventTarget | null): boolean {
 export function Toaster() {
   const toast = useToast();
 
-  // `Z` (or Ctrl/⌘+Z) runs the toast's action, so undo never depends on reaching the button in time.
+  // Shift+Z runs the toast's action, so undo never depends on reaching the button in time.
   useEffect(() => {
     if (!toast?.action) return;
     const action = toast.action;
     function onKey(e: KeyboardEvent) {
-      if (e.key.toLowerCase() !== 'z' || e.repeat || e.altKey || e.shiftKey || isTyping(e.target)) return;
+      if (e.key.toLowerCase() !== 'z' || !e.shiftKey || e.repeat || e.altKey || e.metaKey || e.ctrlKey || isTyping(e.target)) return;
       e.preventDefault();
       action.run();
       dismissToast();
@@ -44,12 +44,12 @@ export function Toaster() {
                 toast.action!.run();
                 dismissToast();
               }}
-              aria-keyshortcuts="Z"
+              aria-keyshortcuts="Shift+Z"
               className="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-semibold text-indigo-300 hover:bg-white/10 transition-colors"
             >
               {toast.action.label}
               <kbd className="px-1 rounded bg-white/10 font-sans text-[11px] font-semibold leading-4 text-slate-300" aria-hidden>
-                Z
+                ⇧Z
               </kbd>
             </button>
           )}

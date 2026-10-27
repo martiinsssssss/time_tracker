@@ -416,7 +416,7 @@ export function SettingsPage() {
               <button
                 onClick={() => removeBlock(b.id)}
                 aria-label={`Remove out-of-office block: ${describeBlock(b)}`}
-                className="p-1 rounded-md text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                className="p-1 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
               >
                 <X size={15} />
               </button>
@@ -494,7 +494,7 @@ export function SettingsPage() {
               <button
                 onClick={() => removeHoliday(h.date)}
                 aria-label={`Remove holiday: ${h.name}`}
-                className="p-1 rounded-md text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                className="p-1 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
               >
                 <X size={15} />
               </button>

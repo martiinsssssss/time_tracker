@@ -20,7 +20,7 @@ const fmtTime = (iso: string) => new Date(iso).toLocaleTimeString('en-GB', { hou
  * today, and the one action — start or stop.
  */
 export function TodayCard() {
-  const { intervals, running, toggle, update } = useIntervals();
+  const { intervals, running, toggle, update, discardRunning, resume } = useIntervals();
   const { settings } = useSettings();
   const now = useNow(1000);
   const plan = useWeekPlan(now);
@@ -49,6 +49,7 @@ export function TodayCard() {
   function handleToggle() {
     if (!running) {
       toggle();
+      showToast({ message: `Started at ${fmtTime(new Date().toISOString())}`, action: { label: 'Undo', run: discardRunning } });
       return;
     }
     const stoppedAt = Date.now();
@@ -59,7 +60,8 @@ export function TodayCard() {
     const savedMs = new Date(endIso).getTime() - new Date(running.start).getTime();
     const shiftMs = new Date(endIso).getTime() - stoppedAt;
     if (Math.abs(shiftMs) < 1000) {
-      showToast({ message: `Saved ${formatHM(savedMs)}` });
+      const stoppedId = running.id;
+      showToast({ message: `Saved ${formatHM(savedMs)}`, action: { label: 'Resume', run: () => resume(stoppedId) } });
       return;
     }
     // Rounding changed what was tracked: say so, and offer the exact stop time back.
@@ -74,14 +76,15 @@ export function TodayCard() {
     );
   }
 
-  // `S` starts or stops the timer from anywhere on the page, except while typing.
+  // Shift+S starts or stops the timer from anywhere on the page, except while typing.
+  // A modifier keeps a stray keypress from changing the log.
   const toggleRef = useRef(handleToggle);
   useEffect(() => {
     toggleRef.current = handleToggle;
   });
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key.toLowerCase() !== 's' || e.repeat || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
+      if (e.key.toLowerCase() !== 's' || !e.shiftKey || e.repeat || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
       e.preventDefault();
       toggleRef.current();
     }
@@ -117,13 +120,13 @@ export function TodayCard() {
             <>
               <p
                 role="timer"
-                aria-label={`Current interval: ${formatHM(elapsed)}`}
+                aria-label={`Worked today: ${formatHM(workedMs)}`}
                 className="font-mono text-5xl sm:text-6xl font-extrabold tracking-tighter tabular-nums leading-none text-indigo-600 dark:text-indigo-400"
               >
-                {formatHMS(elapsed)}
+                {formatHMS(workedMs)}
               </p>
               <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 tabular-nums">
-                this interval · <span className="font-semibold text-slate-700 dark:text-slate-200">{formatHM(workedMs)}</span> today
+                worked today · this interval <span className="font-mono font-semibold text-slate-700 dark:text-slate-200">{formatHMS(elapsed)}</span>
               </p>
             </>
           ) : (
@@ -181,7 +184,7 @@ export function TodayCard() {
         <div className="flex flex-col gap-2.5">
           <button
             onClick={handleToggle}
-            aria-keyshortcuts="S"
+            aria-keyshortcuts="Shift+S"
             className={`w-full py-4 rounded-xl font-bold text-white text-lg shadow flex items-center justify-center gap-2 transition-colors ${
               running
                 ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200 dark:shadow-none'
@@ -191,7 +194,7 @@ export function TodayCard() {
             {running ? <Square size={20} fill="currentColor" aria-hidden /> : <Play size={20} fill="currentColor" aria-hidden />}
             {running ? 'Stop interval' : 'Start interval'}
             <kbd className="ml-1 px-1.5 rounded-md bg-white/15 font-sans text-xs font-semibold leading-5" aria-hidden>
-              S
+              ⇧S
             </kbd>
           </button>
           {settings.roundingMarginMinutes > 0 && targetMs > 0 && (

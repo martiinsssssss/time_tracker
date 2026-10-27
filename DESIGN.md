@@ -172,7 +172,7 @@ Color carries meaning first and decoration second. Emerald means *done or ahead*
 A cool slate neutral world with one confident indigo accent and four semantic tints that each mean exactly one thing.
 
 ### Primary
-- **Focus Indigo** (`focus-indigo`): the color of action and of the current moment. It appears on the Start button, the running timer's digits, the RUNNING badge and the 4px top edge of the Today card while running, the active nav tab, in-progress bars, the Save button and (as a wash, never solid) vacation days in the calendar. Hover deepens it to **Focus Indigo Deep**. In dark mode, text and icons shift to the lighter **Focus Indigo Glow** to keep contrast. **Focus Indigo Wash** is the tinted background of indigo chips and today's card in the week.
+- **Focus Indigo** (`focus-indigo`): the color of action and of the current moment. It appears on the Start button, the running timer's digits, the RUNNING badge and the 4px top edge of the Today card while running, the active nav tab, in-progress bars, and the Save button. Hover deepens it to **Focus Indigo Deep**. In dark mode, text and icons shift to the lighter **Focus Indigo Glow** to keep contrast. **Focus Indigo Wash** is the tinted background of indigo chips and today's card in the week.
 
 ### Secondary (semantic state tints)
 - **Done Emerald** (`done-emerald`, ink `done-emerald-ink`): goal reached, completed day bars, ahead of plan and positive carry-in. Text uses emerald-700 (emerald-400 in dark mode).
@@ -195,7 +195,7 @@ A cool slate neutral world with one confident indigo accent and four semantic ti
 - **Night Desk / Night Paper / Night Hairline / Night Heading Ink**: the dark-theme counterparts. The page is slate-900, cards are slate-800, borders are slate-700, and headings are slate-100. Semantic washes become ~40% alpha tints of the 900 shade.
 
 ### Named Rules
-**The One Meaning Rule.** Each semantic tint means one thing everywhere: emerald is *done or ahead*, rose is *owed or stop*, sky is *away*, amber is *heads-up* (holidays, the daily target line, planned make-up hours and rounding notes), and indigo is *now* (the action, the running timer, the current tab). Never use emerald for decoration on a number that isn't good news, and never use rose for anything that isn't a stop or a real deficit carried in from past weeks. Planned make-up is the system working, so it is amber, never rose.
+**The One Meaning Rule.** Each semantic tint means one thing everywhere: emerald is *done or ahead*, rose is *owed or stop*, sky is *away*, amber is *heads-up* (holidays, the daily target line, planned make-up hours and rounding notes), and indigo is *now* (the action, the running timer, the current tab). Vacation and PTO are neutral slate, never indigo. Never use emerald for decoration on a number that isn't good news, and never use rose for anything that isn't a stop or a real deficit carried in from past weeks. Planned make-up is the system working, so it is amber, never rose.
 
 **The Paired Theme Rule.** Every color class ships with its `dark:` partner in the same class string. A color without its dark counterpart is a bug.
 
@@ -207,7 +207,7 @@ A cool slate neutral world with one confident indigo accent and four semantic ti
 **Character:** one familiar system sans for everything, which keeps the tool native and quiet. A monospace face appears only where digits tick, so the clock reads like a clock.
 
 ### Hierarchy
-- **Display** (800, 3rem → 3.75rem from 640px, line-height 1, tabular): the Today hero. When idle it is today's total in the system sans and Heading Ink. While running it becomes the interval's HH:MM:SS in monospace Focus Indigo. Only one appears per screen.
+- **Display** (800, 3rem → 3.75rem from 640px, line-height 1, tabular): the Today hero. When idle it is today's total in the system sans and Heading Ink. While running it becomes today's total ticking as HH:MM:SS in monospace Focus Indigo, with the current interval as the subline. Only one appears per screen.
 - **Headline** (800, 1.875rem, tabular): "Xh left" in This week and the monthly total.
 - **Title** (700, 1.125rem): card headings, always preceded by an icon chip. The Start/Stop button uses the same size and weight.
 - **Stat** (800, 1.125rem, tight): values inside stat tiles (History only).
@@ -262,7 +262,7 @@ Tactile and clear.
 - **Running badge:** an indigo-50 pill with indigo-700 bold uppercase 0.75rem "RUNNING" text and a pulsing 6px indigo dot (still under reduced motion).
 - **Rounded chip:** on an interval whose end the rounding margin moved, an amber-50 chip reads "rounded +5m" with an undo icon that restores the real stop time.
 - **Skip class chip:** an outlined chip with a 1px sky-200 border, sky-700 11px text and 6px radius. Hover adds a sky-50 wash. It toggles to "Undo skip".
-- **PTO pill:** an indigo-50 pill with indigo-700 0.875rem medium text and a palm icon.
+- **PTO pill:** a slate-100 pill with slate-700 0.875rem medium text and a palm icon.
 
 ### Cards / Containers
 - **Corner Style:** 16px.
@@ -277,7 +277,7 @@ Tactile and clear.
 A compact card (16px padding, 12px on phones) with a 40px rounded-12 icon chip on the left (hidden below 640px). The right side stacks a muted 0.75rem label, a heavy 1.125rem value and an optional 11px muted hint ("of 40h", "+1h 00m ahead"). Chip accents obey the One Meaning Rule. Indigo marks today and PTO (vacation). Slate is neutral and is used for the week total and the streak. "Left this week" turns emerald when ahead, rose when behind, and slate otherwise.
 
 ### Toast
-A single app-wide slot, bottom-center: a slate-800 pill (slate-700 in dark mode) with white 0.875rem text, the Floating shadow and 12px radius. An optional indigo-300 action ("Undo", "Keep exact") with a `Z` key hint and a dismiss button complete it. It lasts 7 seconds (10 seconds for a rounding notice), pauses while hovered or focused, enters with a 180ms ease-out rise, and sits inside a polite live region. Pressing `Z` anywhere runs its action. Every destructive or silently derived change to the log (delete, vacation toggle, stop rounding) answers with a toast that can reverse it.
+A single app-wide slot, bottom-center: a slate-800 pill (slate-700 in dark mode) with white 0.875rem text, the Floating shadow and 12px radius. An optional indigo-300 action ("Undo", "Keep exact") with a ⇧Z key hint and a dismiss button complete it. It lasts 7 seconds (10 seconds for a rounding notice), pauses while hovered or focused, enters with a 180ms ease-out rise, and sits inside a polite live region. Pressing Shift+Z anywhere runs its action. Start answers with "Started at 16:02 · Undo" and a plain stop with "Saved 1h 40m · Resume". Every destructive or silently derived change to the log (delete, vacation toggle, stop rounding) answers with a toast that can reverse it.
 
 ### Inputs / Fields
 - **Style:** a 1px Hairline border on Paper, 8px radius, 8px × 12px padding and Body Ink text. In dark mode the field is slate-900 with a slate-600 border. The label sits above the field in 0.875rem Body Ink with a 4px gap.
@@ -292,7 +292,7 @@ A segmented control in the header: a Desk-colored track with 4px padding and 12p
 A 12px-radius bordered tile per weekday. The header shows the weekday with a muted date and an icon if the day is a holiday or vacation. Below it sit a 6px progress pill, "worked / planned" in tabular 0.75rem, and 11px colored notes ("2h out" in sky, "+1h 33m make-up" in amber, "30m less" in emerald). Days before the first logged interval read "Not tracked yet" and don't count against the week. The tile ends with the Skip class chip when a class falls on that day. Today's tile gets an indigo-300 border with an indigo-50/50 wash, and past tiles sit on a Well wash with a lighter border (never reduced opacity, which costs contrast).
 
 ### Calendar Day
-A fixed-height (40px, 44px from 640px) 8px-radius cell. Today is filled with Heading Ink (inverted in dark mode) so it never looks like the focus ring. Holidays get an amber wash, vacation an indigo wash, and classes a 6px sky dot (hollow when skipped). Only working days toggle vacation; weekends and holidays are `aria-disabled` but stay focusable so their names are read. One day is tabbable and arrow keys move between days.
+A fixed-height (40px, 44px from 640px) 8px-radius cell. Today is filled with Heading Ink (inverted in dark mode) so it never looks like the focus ring. Weekends get a faint Well wash (text stays Muted Ink), holidays an amber wash, vacation a slate-200 wash, and classes a 6px sky dot (hollow when skipped). Only working days toggle vacation; weekends and holidays are `aria-disabled` but stay focusable so their names are read. One day is tabbable and arrow keys move between days.
 
 ## Do's and Don'ts
 

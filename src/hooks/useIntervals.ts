@@ -52,6 +52,21 @@ export function useIntervals() {
     [setIntervals]
   );
 
+  /** Undoes a Start: drops the running interval. */
+  const discardRunning = useCallback(() => {
+    setIntervals((prev) => prev.filter((i) => i.end !== null));
+  }, [setIntervals]);
+
+  /** Undoes a Stop: re-opens the interval, unless another one is already running. */
+  const resume = useCallback(
+    (id: string) => {
+      setIntervals((prev) =>
+        prev.some((i) => i.end === null) ? prev : prev.map((i) => (i.id === id ? { ...i, end: null, rawEnd: undefined } : i))
+      );
+    },
+    [setIntervals]
+  );
+
   /** Puts back an interval that was just deleted (undo), keeping its id. */
   const restore = useCallback(
     (interval: TimeInterval) => {
@@ -77,5 +92,5 @@ export function useIntervals() {
     [setIntervals]
   );
 
-  return { intervals, running, start, stop, toggle, remove, restore, addManual, update };
+  return { intervals, running, start, stop, toggle, remove, restore, discardRunning, resume, addManual, update };
 }

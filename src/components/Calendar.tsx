@@ -113,7 +113,7 @@ export function Calendar() {
             <ChevronDown size={18} aria-hidden className={`text-slate-400 dark:text-slate-500 transition-transform ${open ? 'rotate-180' : ''}`} />
           </button>
         </h2>
-        <div className="flex items-center gap-2 text-sm bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full font-medium tabular-nums">
+        <div className="flex items-center gap-2 text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-full font-medium tabular-nums">
           <PalmtreeIcon size={15} aria-hidden />
           {remaining} / {settings.vacationDaysTotal} PTO days left ({cursor.year})
         </div>
@@ -123,13 +123,13 @@ export function Calendar() {
         <div id="calendar-body" className="mt-4">
           <div className="flex items-center justify-between mb-3">
             <button onClick={prevMonth} aria-label="Previous month" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">
-              <ChevronLeft size={18} />
+              <ChevronLeft size={18} aria-hidden />
             </button>
             <button onClick={goToday} title="Back to this month" className="px-2 py-1 rounded-lg font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
               {MONTH_NAMES[cursor.month]} {cursor.year}
             </button>
             <button onClick={nextMonth} aria-label="Next month" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">
-              <ChevronRight size={18} />
+              <ChevronRight size={18} aria-hidden />
             </button>
           </div>
 
@@ -194,9 +194,9 @@ export function Calendar() {
                     'relative h-10 sm:h-11 rounded-lg text-sm flex items-center justify-center transition-colors tabular-nums',
                     canToggle ? '' : 'cursor-default',
                     isHoliday ? 'bg-amber-100 dark:bg-amber-400/20 text-amber-800 dark:text-amber-200 font-semibold' : '',
-                    isVacation ? 'bg-indigo-100 dark:bg-indigo-500/25 text-indigo-800 dark:text-indigo-200 font-semibold hover:bg-indigo-200 dark:hover:bg-indigo-500/35' : '',
+                    isVacation ? 'bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-100 font-semibold hover:bg-slate-300 dark:hover:bg-slate-500' : '',
                     plain && isToday ? 'bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 font-bold' : '',
-                    plain && !isToday && cell.isWeekend ? 'text-slate-400 dark:text-slate-500' : '',
+                    plain && !isToday && cell.isWeekend ? 'bg-slate-50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400' : '',
                     plain && !isToday && !cell.isWeekend ? 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700' : '',
                     !plain && isToday ? 'underline decoration-2 underline-offset-4' : '',
                   ].join(' ')}
@@ -223,7 +223,7 @@ export function Calendar() {
               <span className="w-3 h-3 rounded bg-amber-100 dark:bg-amber-400/20 inline-block" /> Holiday
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded bg-indigo-100 dark:bg-indigo-500/25 inline-block" /> Vacation
+              <span className="w-3 h-3 rounded bg-slate-200 dark:bg-slate-600 inline-block" /> Vacation
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-sky-500 inline-block" /> Out of office

@@ -116,7 +116,7 @@ export function WeekCard() {
                   </span>
                 )}
                 {day.offReason === 'vacation' && (
-                  <span title="Vacation" className="text-indigo-500">
+                  <span title="Vacation" className="text-slate-500 dark:text-slate-400">
                     <PalmtreeIcon size={15} aria-label="Vacation" />
                   </span>
                 )}
