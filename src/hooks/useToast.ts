@@ -31,6 +31,17 @@ export function showToast(toast: Omit<Toast, 'id'>, durationMs = 7000) {
   emit();
 }
 
+/** Holds the current toast on screen while it is hovered or focused. */
+export function pauseToast() {
+  clearTimeout(timer);
+}
+
+/** Lets a paused toast leave again, with a short grace period. */
+export function resumeToast(graceMs = 4000) {
+  clearTimeout(timer);
+  if (current) timer = setTimeout(dismissToast, graceMs);
+}
+
 export function useToast(): Toast | null {
   const [toast, setToast] = useState(current);
   useEffect(() => {

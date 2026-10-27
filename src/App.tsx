@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LayoutDashboard, History as HistoryIcon, Settings as SettingsIcon, Clock } from 'lucide-react';
 import { Dashboard } from './components/Dashboard';
 import { SettingsPage } from './components/Settings';
@@ -8,7 +8,7 @@ import { useTheme } from './hooks/useTheme';
 import { useIntervals } from './hooks/useIntervals';
 import { useNow } from './hooks/useNow';
 import { useWeekPlan } from './hooks/useWeekPlan';
-import { formatHM } from './lib/time';
+import { formatHM, formatShort } from './lib/time';
 
 type Tab = 'dashboard' | 'history' | 'settings';
 
@@ -18,27 +18,35 @@ const TABS: { id: Tab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'settings', label: 'Settings', icon: SettingsIcon },
 ];
 
-/** Keeps the browser tab readable at a glance: ▶ and today's total while the timer runs. */
+/** Keeps the browser tab readable at a glance: ▶ while running, then today's total against its target. */
 function TabTitle() {
   const now = useNow(1000);
   const { running } = useIntervals();
-  const { today } = useWeekPlan(now);
-  const title = `${running ? '▶ ' : ''}${formatHM(today.workedMs)} today · Time Tracker`;
+  const { today, todayTargetMs } = useWeekPlan(now);
+  const progress = todayTargetMs > 0 ? `${formatHM(today.workedMs)} / ${formatShort(todayTargetMs)}` : `${formatHM(today.workedMs)} today`;
+  const title = `${running ? '▶ ' : ''}${progress} · Time Tracker`;
   useEffect(() => {
     document.title = title;
   }, [title]);
   return null;
 }
 
+/** The header date, re-rendered each minute so it rolls over at midnight in a tab left open. */
+function HeaderDate() {
+  const label = new Date(useNow(60_000)).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  return <p className="text-xs text-slate-500 dark:text-slate-400 ml-11 -mt-0.5">{label}</p>;
+}
+
 function App() {
   const [tab, setTab] = useState<Tab>('dashboard');
+  const mainRef = useRef<HTMLElement>(null);
   useTheme(); // applies the persisted theme class to <html> on load and on change
 
-  const todayLabel = new Date().toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  });
+  function openTab(next: Tab) {
+    setTab(next);
+    // Move keyboard and screen-reader users to the new view instead of leaving them on the nav.
+    requestAnimationFrame(() => mainRef.current?.focus({ preventScroll: true }));
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900 transition-colors">
@@ -51,7 +59,7 @@ function App() {
               </span>
               Time Tracker
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 ml-11 -mt-0.5">{todayLabel}</p>
+            <HeaderDate />
           </div>
           <nav aria-label="Main" className="flex gap-1 bg-slate-100 dark:bg-slate-900 rounded-xl p-1">
             {TABS.map((t) => {
@@ -59,17 +67,16 @@ function App() {
               return (
                 <button
                   key={t.id}
-                  onClick={() => setTab(t.id)}
+                  onClick={() => openTab(t.id)}
                   aria-current={tab === t.id ? 'page' : undefined}
-                  aria-label={t.label}
                   className={`px-3 sm:px-4 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
                     tab === t.id
-                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-200 shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                   }`}
                 >
                   <Icon size={15} aria-hidden />
-                  <span className="hidden sm:inline">{t.label}</span>
+                  <span className="sr-only sm:not-sr-only">{t.label}</span>
                 </button>
               );
             })}
@@ -77,7 +84,7 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
+      <main ref={mainRef} tabIndex={-1} aria-label={TABS.find((t) => t.id === tab)!.label} className="max-w-5xl mx-auto px-4 py-6 outline-none">
         {tab === 'dashboard' && <Dashboard />}
         {tab === 'history' && <History />}
         {tab === 'settings' && <SettingsPage />}

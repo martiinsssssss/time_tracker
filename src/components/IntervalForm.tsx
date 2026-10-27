@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { TimeInterval } from '../types';
 import { fromDatetimeLocal, intervalDuration, toDatetimeLocal } from '../lib/time';
 
@@ -40,6 +40,7 @@ export function IntervalForm({ initial, others, now, saveLabel, onSave, onCancel
   const [draftStart, setDraftStart] = useState(() => toDatetimeLocal(initial.start));
   const [draftEnd, setDraftEnd] = useState(() => (initial.end ? toDatetimeLocal(initial.end) : ''));
   const [draftLabel, setDraftLabel] = useState(initial.label ?? '');
+  const errorId = useId();
 
   const startMs = draftStart ? new Date(draftStart).getTime() : NaN;
   const endMs = isRunning ? null : draftEnd ? new Date(draftEnd).getTime() : NaN;
@@ -55,7 +56,7 @@ export function IntervalForm({ initial, others, now, saveLabel, onSave, onCancel
   }
 
   const fieldClass =
-    'border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-md px-2 py-1 text-xs tabular-nums';
+    'border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 placeholder:text-slate-500 dark:placeholder:text-slate-400 rounded-md px-2 py-1 text-xs tabular-nums';
 
   return (
     <form
@@ -76,6 +77,7 @@ export function IntervalForm({ initial, others, now, saveLabel, onSave, onCancel
             value={draftStart}
             onChange={(e) => setDraftStart(e.target.value)}
             aria-invalid={!!error}
+            aria-describedby={errorId}
             className={fieldClass}
             autoFocus
           />
@@ -88,6 +90,7 @@ export function IntervalForm({ initial, others, now, saveLabel, onSave, onCancel
               value={draftEnd}
               onChange={(e) => setDraftEnd(e.target.value)}
               aria-invalid={!!error}
+              aria-describedby={errorId}
               className={fieldClass}
             />
           </label>
@@ -102,11 +105,10 @@ export function IntervalForm({ initial, others, now, saveLabel, onSave, onCancel
         className={`${fieldClass} w-full`}
       />
       <div className="flex items-center justify-end gap-2">
-        {error && (
-          <p className="flex-1 text-xs font-medium text-rose-600 dark:text-rose-400" role="alert">
-            {error}
-          </p>
-        )}
+        {/* Polite and always mounted: the message is read once it settles, not on every keystroke. */}
+        <p id={errorId} aria-live="polite" className="flex-1 text-xs font-medium text-rose-700 dark:text-rose-300">
+          {error}
+        </p>
         <button
           type="button"
           onClick={onCancel}

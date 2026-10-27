@@ -141,8 +141,8 @@ components:
     rounded: "{rounded.md}"
     padding: "2px 8px"
   badge-running:
-    backgroundColor: "oklch(95% 0.052 163.051)"
-    textColor: "{colors.done-emerald-ink}"
+    backgroundColor: "{colors.focus-indigo-wash}"
+    textColor: "{colors.focus-indigo-deep}"
     typography: "{typography.label}"
     rounded: "{rounded.full}"
     padding: "2px 8px"
@@ -156,9 +156,9 @@ components:
 
 Time Tracker sits in a browser tab next to you all day, so it should feel like a friendly object on the desk rather than a corporate dashboard. Soft white cards rest on a cool slate desk, each one opening with a small tinted icon chip and a plain bold title. The surface is rounded and gently lifted, and it never shouts. Warmth comes from the generous 16px corners, the color-coded icon chips and a cheerful accent indigo. The numbers stay calm and exact.
 
-Density is moderate. The dashboard stacks a row of five stat tiles, then the timer and today's workday side by side, then the week, the calendar and today's intervals, all inside a 1024px column. A glance should answer three questions: is the timer running, how much have I done today, and how much is left this week. Big tabular numbers carry those answers, and everything else steps back into small muted text.
+Density is moderate. The dashboard opens with a single Today card (today's total, or the running interval, beside the Start/Stop action), then the log of today's intervals, then the week with its calculation, then a collapsible calendar, all inside a 1024px column. A glance should answer three questions: is the timer running, how much have I done today, and how much is left today. Big tabular numbers carry those answers, each said once, and everything else steps back into small muted text.
 
-Color carries meaning first and decoration second. Emerald means *done or ahead*, rose means *owed or stop*, sky means *away* (out of office, classes), amber means *holiday or target*, and indigo means *the thing you're acting on now*. The heading icon chips borrow these tints freely, and violet appears only as a chip tint.
+Color carries meaning first and decoration second. Emerald means *done or ahead*, rose means *owed or stop*, sky means *away* (out of office, classes), amber means *heads-up* (holidays, targets, planned make-up), and indigo means *now*: the action and the running timer. The heading icon chips borrow these tints freely, and violet appears only as a chip tint.
 
 **Key Characteristics:**
 - White cards (16px radius, 1px hairline border, whisper shadow) on a cool slate desk
@@ -172,13 +172,13 @@ Color carries meaning first and decoration second. Emerald means *done or ahead*
 A cool slate neutral world with one confident indigo accent and four semantic tints that each mean exactly one thing.
 
 ### Primary
-- **Focus Indigo** (`focus-indigo`): the color of action and of the current moment. It appears on the Start button, the running timer's digits, the active nav tab, in-progress bars, today's ring in the calendar, vacation days and the Save button. Hover deepens it to **Focus Indigo Deep**. In dark mode, text and icons shift to the lighter **Focus Indigo Glow** to keep contrast. **Focus Indigo Wash** is the tinted background of indigo chips and today's card in the week.
+- **Focus Indigo** (`focus-indigo`): the color of action and of the current moment. It appears on the Start button, the running timer's digits, the RUNNING badge and the 4px top edge of the Today card while running, the active nav tab, in-progress bars, the Save button and (as a wash, never solid) vacation days in the calendar. Hover deepens it to **Focus Indigo Deep**. In dark mode, text and icons shift to the lighter **Focus Indigo Glow** to keep contrast. **Focus Indigo Wash** is the tinted background of indigo chips and today's card in the week.
 
 ### Secondary (semantic state tints)
-- **Done Emerald** (`done-emerald`, ink `done-emerald-ink`): goal reached, ahead of plan, positive carry-in, the RUNNING badge and the green top edge of a running timer card.
-- **Owed Rose** (`owed-rose`, deep `owed-rose-deep`): the Stop button, hours to make up, negative carry-in and the delete hover.
-- **Away Sky** (`away-sky`, ink `away-sky-ink`): out-of-office time and classes. It covers the calendar dot (filled when the class is attended, hollow when skipped), "Xh out" notes and the Skip class chip.
-- **Holiday Amber** (`holiday-amber`, wash `holiday-amber-wash`): public holidays (calendar cell, party icon) and the dashed daily-target line in the monthly chart.
+- **Done Emerald** (`done-emerald`, ink `done-emerald-ink`): goal reached, completed day bars, ahead of plan and positive carry-in. Text uses emerald-700 (emerald-400 in dark mode).
+- **Owed Rose** (`owed-rose`, deep `owed-rose-deep`): the Stop button, negative carry-in from previous weeks, form errors and the delete hover.
+- **Away Sky** (`away-sky`, ink `away-sky-ink`): out-of-office time and classes. It covers the calendar dot (filled when the class is attended, hollow when skipped), "Xh out" notes and the Skip class chip. Small text uses sky-700 in light mode.
+- **Holiday Amber** (`holiday-amber`, wash `holiday-amber-wash`): the heads-up tint. It covers public holidays (calendar cell, party icon), the dashed daily-target line in the monthly chart, planned make-up hours ("+1h 33m make-up", "3h 05m to make up") and the "rounded +5m" chip on an interval. Text uses amber-700 to amber-800 in light mode (amber-600 fails contrast at 11px) and amber-200 to amber-400 in dark mode.
 
 ### Tertiary
 - **Chip Violet** (`chip-violet`): a purely decorative tint for the Calendar heading's icon chip. It carries no meaning and appears nowhere else.
@@ -195,22 +195,22 @@ A cool slate neutral world with one confident indigo accent and four semantic ti
 - **Night Desk / Night Paper / Night Hairline / Night Heading Ink**: the dark-theme counterparts. The page is slate-900, cards are slate-800, borders are slate-700, and headings are slate-100. Semantic washes become ~40% alpha tints of the 900 shade.
 
 ### Named Rules
-**The One Meaning Rule.** Each semantic tint means one thing everywhere: emerald is *done or ahead*, rose is *owed or stop*, sky is *away*, amber is *holiday or target*. Never use emerald for decoration on a number that isn't good news, and never use rose for anything that isn't a deficit or a stop.
+**The One Meaning Rule.** Each semantic tint means one thing everywhere: emerald is *done or ahead*, rose is *owed or stop*, sky is *away*, amber is *heads-up* (holidays, the daily target line, planned make-up hours and rounding notes), and indigo is *now* (the action, the running timer, the current tab). Never use emerald for decoration on a number that isn't good news, and never use rose for anything that isn't a stop or a real deficit carried in from past weeks. Planned make-up is the system working, so it is amber, never rose.
 
 **The Paired Theme Rule.** Every color class ships with its `dark:` partner in the same class string. A color without its dark counterpart is a bug.
 
 ## Typography
 
-**Display Font:** the system monospace stack (`font-mono`), used only for the live timer and interval durations
+**Display Font:** the system monospace stack (`font-mono`), used only for durations that tick live (the running interval)
 **Body Font:** system-ui (with Segoe UI and Roboto fallbacks)
 
 **Character:** one familiar system sans for everything, which keeps the tool native and quiet. A monospace face appears only where digits tick, so the clock reads like a clock.
 
 ### Hierarchy
-- **Display** (800, 3.75rem, line-height 1, -0.05em tracking, tabular, monospace): the running timer, HH:MM:SS, in Focus Indigo. Only one appears per screen.
-- **Headline** (800, 1.875rem, tabular): hero numbers such as "Worked today" in the workday card, "Xh left" in This week and the monthly total.
+- **Display** (800, 3rem → 3.75rem from 640px, line-height 1, tabular): the Today hero. When idle it is today's total in the system sans and Heading Ink. While running it becomes the interval's HH:MM:SS in monospace Focus Indigo. Only one appears per screen.
+- **Headline** (800, 1.875rem, tabular): "Xh left" in This week and the monthly total.
 - **Title** (700, 1.125rem): card headings, always preceded by an icon chip. The Start/Stop button uses the same size and weight.
-- **Stat** (800, 1.125rem, tight): values inside stat tiles.
+- **Stat** (800, 1.125rem, tight): values inside stat tiles (History only).
 - **Body** (400–600, 0.875rem): nav tabs, interval rows, field labels, explanatory text.
 - **Label** (500, 0.75rem): stat tile labels, legends, notes under progress bars, small buttons.
 - **Micro** (500, 11px): stat tile hints and the badges inside week-day cards ("2h out", "+1h make-up", "Skip class").
@@ -222,15 +222,14 @@ A cool slate neutral world with one confident indigo accent and four semantic ti
 
 A single centered column (max-width 1024px, 16px side gutters) under a sticky header. The Dashboard stacks sections with 24px gaps:
 
-1. Stat tiles: three tiles (worked today, week so far, left this week), always 3 columns, with 8px gaps on phones and 16px from 640px.
-2. Timer and Today's workday: 1 column, then 2 from 768px, with 24px gaps.
-3. Today's intervals: the log sits directly under the timer.
-4. This week: weekday cards in 2 columns, then 5 from 640px, with 12px gaps.
-5. Calendar: a 7-column Monday-first grid with 4px gaps.
+1. Today: the hero number, today's progress and its notes on the left; the Start/Stop button (17rem column) on the right from 768px, stacked below on phones.
+2. Today's intervals: the log, with its total in the heading and Add interval.
+3. This week: weekday cards in 2 columns, then 5 from 640px, with 12px gaps, then a "How is this calculated?" disclosure that walks from the weekly target to today's make-up.
+4. Calendar: collapsed by default (the PTO pill stays visible in its header; the open state is remembered), a 7-column Monday-first grid with 4px gaps.
 
-Streak and PTO live on History, not the Dashboard.
+Each number is said once on the Dashboard: today's progress lives in Today, the week's remaining hours in This week. Streak and PTO stat tiles live on History.
 
-Cards use 24px padding (16px for stat tiles, 12px on phones). Inside a card, the heading sits 16px above the content, and related lines stack with 4–8px. Settings and History reuse the same full-width card stack. Breakpoints are Tailwind's defaults (`sm` 640, `md` 768, `lg` 1024). Below `sm`, the nav tabs collapse to icons only.
+Cards use 24px padding (16px for stat tiles, 12px on phones). Inside a card, the heading sits 16px above the content, and related lines stack with 4–8px. Settings and History reuse the same full-width card stack. Breakpoints are Tailwind's defaults (`sm` 640, `md` 768, `lg` 1024). Below `sm`, the nav tabs collapse to icons only (labels stay available to screen readers).
 
 ## Elevation & Depth
 
@@ -239,14 +238,14 @@ A lightly lifted system. Each card combines a 1px hairline border with Tailwind'
 ### Shadow Vocabulary
 - **Card whisper** (`box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)`): every card, stat tile and active nav tab.
 - **Action glow** (`box-shadow: 0 1px 3px 0 <indigo-200 or rose-200>, 0 1px 2px -1px <same>`): the Start/Stop button only.
-- **Floating** (`box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)`): chart tooltip.
+- **Floating** (`box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)`): chart tooltip and toast.
 
 ### Named Rules
 **The Border-Plus-Whisper Rule.** Cards always get both the hairline border and the whisper shadow. Never use a heavier shadow to make one card more important; use content, a semantic top edge or a tint instead.
 
 ## Shapes
 
-Soft, friendly geometry. Radii step down as elements nest: cards are 16px, the big buttons, stat icon chips and weekday cards are 12px, inputs, interval rows, nav tabs, heading icon chips and calendar cells are 8px, and small buttons and chips are 6px. Badges, progress bars, status dots and the theme switch are fully round. Progress bars are thin pills (8px tall in the workday card, 6px in weekday cards) on a Desk-colored track. Calendar cells have a fixed height (40px, 44px from 640px) so the month stays compact at any width.
+Soft, friendly geometry. Radii step down as elements nest: cards are 16px, the big buttons, stat icon chips and weekday cards are 12px, inputs, interval rows, nav tabs, heading icon chips and calendar cells are 8px, and small buttons and chips are 6px. Badges, progress bars, status dots and the theme switch are fully round. Progress bars are thin pills (8px tall in the Today card, 6px in weekday cards) on a Desk-colored track. Calendar cells have a fixed height (40px, 44px from 640px) so the month stays compact at any width.
 
 ## Components
 
@@ -257,10 +256,11 @@ Tactile and clear.
 - **Stop (Stop interval):** the same button swapped to Owed Rose with a filled square icon. The same physical button changes meaning, never position.
 - **Small (Save):** Focus Indigo with white 0.75rem medium text and 4px × 12px padding.
 - **Ghost (Cancel):** Soft Ink text with no fill. Hover adds a slate-200 wash.
-- **Icon buttons (edit, delete, month arrows):** bare 14–18px Lucide icons in light slate. Hover tints indigo for edit and rose for delete.
+- **Icon buttons (edit, delete, month arrows):** 14–18px Lucide icons in Muted Ink with 8px padding (about a 30px target). Hover tints indigo for edit and rose for delete, over a Paper wash.
 
 ### Chips & Badges
-- **Running badge:** an emerald-100 pill with emerald-700 bold uppercase 0.75rem "RUNNING" text and a pulsing 6px emerald dot.
+- **Running badge:** an indigo-50 pill with indigo-700 bold uppercase 0.75rem "RUNNING" text and a pulsing 6px indigo dot (still under reduced motion).
+- **Rounded chip:** on an interval whose end the rounding margin moved, an amber-50 chip reads "rounded +5m" with an undo icon that restores the real stop time.
 - **Skip class chip:** an outlined chip with a 1px sky-200 border, sky-700 11px text and 6px radius. Hover adds a sky-50 wash. It toggles to "Undo skip".
 - **PTO pill:** an indigo-50 pill with indigo-700 0.875rem medium text and a palm icon.
 
@@ -271,25 +271,28 @@ Tactile and clear.
 - **Border:** 1px Hairline, or Night Hairline in dark mode.
 - **Internal Padding:** 24px, or 16px for stat tiles.
 - **Header:** a 32px icon chip (8px radius, a tinted wash of the subject's color with a 17px icon at stroke 2.25) followed by a bold 1.125rem title.
-- **State edge:** the timer card shows a 4px emerald bar along its top edge while running.
+- **State edge:** the Today card shows a 4px indigo bar along its top edge while running.
 
 ### Stat Tile (signature)
 A compact card (16px padding, 12px on phones) with a 40px rounded-12 icon chip on the left (hidden below 640px). The right side stacks a muted 0.75rem label, a heavy 1.125rem value and an optional 11px muted hint ("of 40h", "+1h 00m ahead"). Chip accents obey the One Meaning Rule. Indigo marks today and PTO (vacation). Slate is neutral and is used for the week total and the streak. "Left this week" turns emerald when ahead, rose when behind, and slate otherwise.
 
 ### Toast
-A single app-wide slot, bottom-center: a slate-800 pill (slate-700 in dark mode) with white 0.875rem text, the Floating shadow and 12px radius. An optional indigo-300 action ("Undo", "Keep exact") and a dismiss button complete it. It lasts 7 seconds (10 seconds for a rounding notice), enters with a 180ms ease-out rise, and sits inside a polite live region. Every destructive or silently derived change to the log (delete, vacation toggle, stop rounding) answers with a toast that can reverse it.
+A single app-wide slot, bottom-center: a slate-800 pill (slate-700 in dark mode) with white 0.875rem text, the Floating shadow and 12px radius. An optional indigo-300 action ("Undo", "Keep exact") with a `Z` key hint and a dismiss button complete it. It lasts 7 seconds (10 seconds for a rounding notice), pauses while hovered or focused, enters with a 180ms ease-out rise, and sits inside a polite live region. Pressing `Z` anywhere runs its action. Every destructive or silently derived change to the log (delete, vacation toggle, stop rounding) answers with a toast that can reverse it.
 
 ### Inputs / Fields
 - **Style:** a 1px Hairline border on Paper, 8px radius, 8px × 12px padding and Body Ink text. In dark mode the field is slate-900 with a slate-600 border. The label sits above the field in 0.875rem Body Ink with a 4px gap.
 - **Compact (inline interval edit):** 6px radius with 4px × 8px padding and 0.75rem text.
 - **Focus:** a global `:focus-visible` outline, 2px Focus Indigo (indigo-500, indigo-400 in dark mode) with a 2px offset. Text selection uses an indigo-100 wash (indigo-800 in dark mode).
-- **Error:** an invalid interval draft shows a rose-600 0.75rem message beside the actions and disables Save.
+- **Error:** an invalid interval draft shows a rose-700 0.75rem message beside the actions (a polite live region tied to the fields by `aria-describedby`) and disables Save.
 
 ### Navigation
-A segmented control in the header: a Desk-colored track with 4px padding and 12px radius holds three tabs (Dashboard, History, Settings), each with a 15px icon and a 0.875rem medium label. The active tab is lifted onto Paper with Focus Indigo text and the card whisper, and inactive tabs use Soft Ink. Below 640px, only the icons show. The brand mark beside it is a 36px rounded-12 solid Focus Indigo tile with a white clock icon. The system has no gradients.
+A segmented control in the header: a Desk-colored track with 4px padding and 12px radius holds three tabs (Dashboard, History, Settings), each with a 15px icon and a 0.875rem medium label. The active tab is lifted onto Paper with Focus Indigo text (indigo-200 on slate-700 in dark mode) and the card whisper, and inactive tabs use slate-600. Switching tabs moves focus to the new view. Below 640px, only the icons show. The brand mark beside it is a 36px rounded-12 solid Focus Indigo tile with a white clock icon. The system has no gradients.
 
 ### Week Day Card (signature)
-A 12px-radius bordered tile per weekday. The header shows the weekday with a muted date and an icon if the day is a holiday or vacation. Below it sit a 6px progress pill, "worked / planned" in tabular 0.75rem, and 11px colored notes ("2h out" in sky, "+1h make-up" in rose, "−30m" in emerald). The tile ends with the Skip class chip when a class falls on that day. Today's tile gets an indigo-300 border with an indigo-50/50 wash, and past tiles drop to 70% opacity.
+A 12px-radius bordered tile per weekday. The header shows the weekday with a muted date and an icon if the day is a holiday or vacation. Below it sit a 6px progress pill, "worked / planned" in tabular 0.75rem, and 11px colored notes ("2h out" in sky, "+1h 33m make-up" in amber, "30m less" in emerald). Days before the first logged interval read "Not tracked yet" and don't count against the week. The tile ends with the Skip class chip when a class falls on that day. Today's tile gets an indigo-300 border with an indigo-50/50 wash, and past tiles sit on a Well wash with a lighter border (never reduced opacity, which costs contrast).
+
+### Calendar Day
+A fixed-height (40px, 44px from 640px) 8px-radius cell. Today is filled with Heading Ink (inverted in dark mode) so it never looks like the focus ring. Holidays get an amber wash, vacation an indigo wash, and classes a 6px sky dot (hollow when skipped). Only working days toggle vacation; weekends and holidays are `aria-disabled` but stay focusable so their names are read. One day is tabbable and arrow keys move between days.
 
 ## Do's and Don'ts
 
@@ -297,9 +300,10 @@ A 12px-radius bordered tile per weekday. The header shows the weekday with a mut
 - **Do** give every new card the Border-Plus-Whisper treatment, a 16px radius, 24px padding and an icon chip before its title.
 - **Do** pair every color class with its `dark:` counterpart. Dark mode is a first-class theme, not a fallback.
 - **Do** set every duration in `tabular-nums` using the `src/lib/time.ts` formatters (`Xh YYm`, `HH:MM:SS`, signed `+`/`−`).
-- **Do** keep each semantic tint to its single meaning: emerald for done or ahead, rose for owed or stop, sky for away or classes, amber for holiday or target.
+- **Do** keep each semantic tint to its single meaning: emerald for done or ahead, rose for owed or stop, sky for away or classes, amber for heads-up, indigo for now.
 - **Do** use Focus Indigo for the one primary action and the current-moment indicators.
-- **Do** keep explanatory text in Muted Ink at 0.75–0.875rem below the number it explains.
+- **Do** keep explanatory text in Muted Ink at 0.75–0.875rem below the number it explains, and show the steps behind any derived number on request.
+- **Do** answer every change to the log with a toast that can reverse it.
 
 ### Don't:
 - **Don't** use emoji in the UI. Celebrate with color and copy instead (for example, emerald "Daily goal reached").
@@ -307,3 +311,4 @@ A 12px-radius bordered tile per weekday. The header shows the weekday with a mut
 - **Don't** add colored shadows in dark mode. Every tinted glow takes `dark:shadow-none`.
 - **Don't** hand-format durations or use proportional digits for numbers that change.
 - **Don't** make one card heavier than the others with a bigger shadow. Use a semantic top edge or a tint.
+- **Don't** repeat the same number in several cards on one screen.

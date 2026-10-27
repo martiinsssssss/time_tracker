@@ -53,7 +53,7 @@ export function History() {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-2 sm:gap-4">
-        <StatTile icon={Flame} label="Current streak" value={`${streak} day${streak === 1 ? '' : 's'}`} hint="days in a row with time logged" accent="slate" />
+        <StatTile icon={Flame} label="Current streak" value={`${streak} day${streak === 1 ? '' : 's'}`} hint="days in a row with time" accent="slate" />
         <StatTile icon={PalmtreeIcon} label="PTO days left" value={String(remainingVacation)} hint={`of ${settings.vacationDaysTotal} in ${year}`} accent="indigo" />
       </div>
 
@@ -112,7 +112,7 @@ export function History() {
                     <span className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2">
                       {label}
                       {d.date === today && (
-                        <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 px-1.5 py-0.5 rounded-full">
+                        <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 px-1.5 py-0.5 rounded-full">
                           TODAY
                         </span>
                       )}

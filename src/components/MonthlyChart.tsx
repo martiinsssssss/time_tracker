@@ -134,7 +134,7 @@ export function MonthlyChart({ intervals, year, month, targetHours, now }: Props
         )}
       </div>
 
-      <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 mt-1 px-0.5">
+      <div className="flex justify-between text-[11px] text-slate-500 dark:text-slate-400 mt-1 px-0.5">
         <span>1</span>
         <span>{points.length}</span>
       </div>

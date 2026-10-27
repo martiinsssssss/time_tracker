@@ -6,6 +6,11 @@ export interface TimeInterval {
   end: string | null;
   /** optional label for the interval */
   label?: string;
+  /**
+   * ISO datetime the timer was actually stopped at, kept only when the
+   * rounding margin moved `end` — so the log can show and revert the rounding.
+   */
+  rawEnd?: string;
 }
 
 export interface Settings {

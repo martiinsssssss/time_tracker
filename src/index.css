@@ -47,3 +47,8 @@ body {
     animation: none;
   }
 }
+
+/* Containers focused by script (e.g. the main view after switching tabs) don't need a ring. */
+main[tabindex="-1"]:focus-visible {
+  outline: none;
+}

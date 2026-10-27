@@ -1,5 +1,5 @@
 import type { OutOfOfficeBlock, Settings, TimeInterval } from '../types';
-import { intervalDuration, startOfWeek, todayKey, totalDurationForDay } from './time';
+import { dateKeyOf, intervalDuration, startOfWeek, todayKey, totalDurationForDay } from './time';
 
 const MINUTE = 60_000;
 const HOUR = 3_600_000;
@@ -73,13 +73,30 @@ export function workedDuringBlockMs(block: OutOfOfficeBlock, date: string, inter
   return total;
 }
 
-/** weeklyTargetHours minus one workday per Mon–Fri holiday/vacation day of the week starting on `monday`. */
-function weekTargetFor(monday: Date, holidays: Set<string>, vacations: Set<string>, settings: Pick<Settings, 'workdayHours' | 'weeklyTargetHours'>): number {
+/**
+ * The first day the log covers: the date of the earliest interval, or today
+ * when nothing has been logged yet. Weekdays before it were never tracked, so
+ * they don't count as missed work.
+ */
+export function firstTrackedDate(intervals: TimeInterval[], now: number): string {
+  let first = todayKey(new Date(now));
+  for (const interval of intervals) {
+    const date = dateKeyOf(interval.start);
+    if (date < first) first = date;
+  }
+  return first;
+}
+
+/**
+ * weeklyTargetHours minus one workday per Mon–Fri holiday/vacation day of the
+ * week starting on `monday`, and per weekday before `trackedFrom`.
+ */
+function weekTargetFor(monday: Date, holidays: Set<string>, vacations: Set<string>, settings: Pick<Settings, 'workdayHours' | 'weeklyTargetHours'>, trackedFrom: string): number {
   const cursor = new Date(monday);
   let daysOff = 0;
   for (let i = 0; i < 5; i++) {
     const date = todayKey(cursor);
-    if (holidays.has(date) || vacations.has(date)) daysOff++;
+    if (holidays.has(date) || vacations.has(date) || date < trackedFrom) daysOff++;
     cursor.setDate(cursor.getDate() + 1);
   }
   return Math.max(0, settings.weeklyTargetHours * HOUR - settings.workdayHours * HOUR * daysOff);
@@ -102,6 +119,7 @@ export function computeCarryInMs(
   if (!settings.balanceStartDate || !/^\d{4}-\d{2}-\d{2}$/.test(settings.balanceStartDate)) return carry;
   const thisWeek = startOfWeek(new Date(now)).getTime();
   const cursor = startOfWeek(parseDateKey(settings.balanceStartDate));
+  const trackedFrom = firstTrackedDate(intervals, now);
 
   // Bucket worked time by week once, instead of scanning every interval per week.
   const workedByWeek = new Map<string, number>();
@@ -113,13 +131,14 @@ export function computeCarryInMs(
   }
 
   while (cursor.getTime() < thisWeek) {
-    carry += (workedByWeek.get(todayKey(cursor)) ?? 0) - weekTargetFor(cursor, holidays, vacations, settings);
+    carry += (workedByWeek.get(todayKey(cursor)) ?? 0) - weekTargetFor(cursor, holidays, vacations, settings, trackedFrom);
     cursor.setDate(cursor.getDate() + 7);
   }
   return carry;
 }
 
-export type OffReason = 'weekend' | 'holiday' | 'vacation' | null;
+/** 'untracked' = a weekday before the first logged interval. */
+export type OffReason = 'weekend' | 'holiday' | 'vacation' | 'untracked' | null;
 
 export interface DayBlock {
   block: OutOfOfficeBlock;
@@ -172,6 +191,12 @@ export interface WeekPlan {
   outOfOfficeMs: number;
   /** working days from today (inclusive) to the end of the week */
   remainingWorkingDays: number;
+  /** weekdays this week before the first logged interval */
+  untrackedDays: number;
+  /** worked on days before today */
+  workedBeforeTodayMs: number;
+  /** the usual hours of today and the remaining working days (workday minus out-of-office) */
+  upcomingBaseMs: number;
   todayTargetMs: number;
   today: WeekDay;
 }
@@ -202,6 +227,24 @@ function spreadReduction(days: WeekDay[], amountMs: number) {
 }
 
 /**
+ * Rounds each day's plan to whole minutes so that the parts still add up to
+ * the rounded total (largest remainder): two days sharing 3h 05m become
+ * 1h 33m + 1h 32m, not 1h 33m + 1h 33m.
+ */
+function roundToMinutes(days: WeekDay[]) {
+  const exact = days.map((d) => Math.max(0, d.plannedMs) / MINUTE);
+  const floors = exact.map(Math.floor);
+  let leftover = Math.round(exact.reduce((a, b) => a + b, 0)) - floors.reduce((a, b) => a + b, 0);
+  const byRemainder = exact.map((v, i) => ({ i, r: v - floors[i] })).sort((a, b) => b.r - a.r);
+  for (const { i } of byRemainder) {
+    if (leftover <= 0) break;
+    floors[i]++;
+    leftover--;
+  }
+  days.forEach((d, i) => (d.plannedMs = floors[i] * MINUTE));
+}
+
+/**
  * Plans the current Monday–Sunday week:
  * - the weekly target drops by one workday per weekday holiday/vacation day,
  *   then the hour bank from previous weeks is applied on top;
@@ -216,6 +259,7 @@ export function buildWeekPlan({ intervals, blocks, skips = [], holidayDates, vac
   const skipSet = new Set(skips);
   const workdayMs = settings.workdayHours * HOUR;
   const todayStr = todayKey(new Date(now));
+  const trackedFrom = firstTrackedDate(intervals, now);
   const monday = startOfWeek(new Date(now));
   const cursor = new Date(monday);
 
@@ -230,7 +274,9 @@ export function buildWeekPlan({ intervals, blocks, skips = [], holidayDates, vac
         ? 'holiday'
         : vacations.has(date)
           ? 'vacation'
-          : null;
+          : date < trackedFrom
+            ? 'untracked'
+            : null;
     const isWorking = offReason === null;
     const dayBlocks: DayBlock[] = isWorking
       ? blocksForDate(blocks, date).map((block) => {
@@ -268,7 +314,7 @@ export function buildWeekPlan({ intervals, blocks, skips = [], holidayDates, vac
   }
 
   const daysOff = days.filter((d) => d.offReason === 'holiday' || d.offReason === 'vacation').length;
-  const weekTargetMs = weekTargetFor(monday, holidays, vacations, settings);
+  const weekTargetMs = weekTargetFor(monday, holidays, vacations, settings, trackedFrom);
   const carryInMs = computeCarryInMs(intervals, holidays, vacations, settings, now);
   const effectiveTargetMs = Math.max(0, weekTargetMs - carryInMs);
 
@@ -284,10 +330,8 @@ export function buildWeekPlan({ intervals, blocks, skips = [], holidayDates, vac
   } else if (extraMs < 0) {
     spreadReduction(upcoming, -extraMs);
   }
-  for (const day of upcoming) {
-    day.plannedMs = Math.max(0, Math.round(day.plannedMs / MINUTE) * MINUTE);
-    day.makeUpMs = day.plannedMs - day.baseMs;
-  }
+  roundToMinutes(upcoming);
+  for (const day of upcoming) day.makeUpMs = day.plannedMs - day.baseMs;
 
   const workedMs = days.reduce((sum, d) => sum + d.workedMs, 0);
   const today = days.find((d) => d.isToday)!;
@@ -303,6 +347,9 @@ export function buildWeekPlan({ intervals, blocks, skips = [], holidayDates, vac
     aheadMs: -extraMs,
     outOfOfficeMs: days.reduce((sum, d) => sum + d.outOfOfficeMs, 0),
     remainingWorkingDays: upcoming.length,
+    untrackedDays: days.filter((d) => d.offReason === 'untracked').length,
+    workedBeforeTodayMs: workedBeforeToday,
+    upcomingBaseMs: upcoming.reduce((sum, d) => sum + d.baseMs, 0),
     todayTargetMs: today.isWorking ? today.plannedMs : 0,
     today,
   };

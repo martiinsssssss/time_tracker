@@ -118,9 +118,9 @@
       "name": "Running Badge",
       "kind": "chip",
       "refersTo": "badge-running",
-      "description": "Emerald pill with a pulsing dot shown in the timer card header while an interval runs.",
+      "description": "Indigo pill with a pulsing dot shown in the Today card header while an interval runs.",
       "html": "<span class=\"ds-badge-running\"><span class=\"ds-dot\"></span>RUNNING</span>",
-      "css": ".ds-badge-running { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 9999px; background: oklch(95% 0.052 163.051); color: oklch(50.8% 0.118 165.612); font: 700 0.75rem/1.33 system-ui, 'Segoe UI', Roboto, sans-serif; letter-spacing: 0.025em; } .ds-dot { width: 6px; height: 6px; border-radius: 9999px; background: oklch(69.6% 0.17 162.48); animation: ds-pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; } @keyframes ds-pulse { 50% { opacity: 0.5; } } @media (prefers-reduced-motion: reduce) { .ds-dot { animation: none; } }"
+      "css": ".ds-badge-running { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 9999px; background: oklch(96.2% 0.018 272.314); color: oklch(45.7% 0.24 277.023); font: 700 0.75rem/1.33 system-ui, 'Segoe UI', Roboto, sans-serif; letter-spacing: 0.025em; } .ds-dot { width: 6px; height: 6px; border-radius: 9999px; background: oklch(58.5% 0.233 277.117); animation: ds-pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; } @keyframes ds-pulse { 50% { opacity: 0.5; } } @media (prefers-reduced-motion: reduce) { .ds-dot { animation: none; } }"
     },
     {
       "name": "Skip Class Chip",
@@ -150,7 +150,7 @@
       "Light and dark themes of equal standing"
     ],
     "rules": [
-      { "name": "The One Meaning Rule", "body": "Each semantic tint means one thing everywhere: emerald is *done or ahead*, rose is *owed or stop*, sky is *away*, amber is *holiday or target*. Never use emerald for decoration on a number that isn't good news, and never use rose for anything that isn't a deficit or a stop.", "section": "colors" },
+      { "name": "The One Meaning Rule", "body": "Each semantic tint means one thing everywhere: emerald is *done or ahead*, rose is *owed or stop*, sky is *away*, amber is *heads-up* (holidays, the daily target line, planned make-up hours and rounding notes), and indigo is *now* (the action, the running timer, the current tab). Never use emerald for decoration on a number that isn't good news, and never use rose for anything that isn't a stop or a real deficit carried in from past weeks. Planned make-up is the system working, so it is amber, never rose.", "section": "colors" },
       { "name": "The Paired Theme Rule", "body": "Every color class ships with its `dark:` partner in the same class string. A color without its dark counterpart is a bug.", "section": "colors" },
       { "name": "The Sacred Numbers Rule", "body": "Every duration is set in tabular figures (`tabular-nums`). Totals read `Xh YYm`, compact plans read `4h` / `1h 20m`, signed balances read `+1h 00m` / `−1h 00m` with a true minus sign, and anything that ticks live reads `HH:MM:SS` in monospace. Use the formatters in `src/lib/time.ts`. Never hand-format durations.", "section": "typography" },
       { "name": "The Border-Plus-Whisper Rule", "body": "Cards always get both the hairline border and the whisper shadow. Never use a heavier shadow to make one card more important; use content, a semantic top edge or a tint instead.", "section": "elevation" }
@@ -159,16 +159,18 @@
       "**Do** give every new card the Border-Plus-Whisper treatment, a 16px radius, 24px padding and an icon chip before its title.",
       "**Do** pair every color class with its `dark:` counterpart. Dark mode is a first-class theme, not a fallback.",
       "**Do** set every duration in `tabular-nums` using the `src/lib/time.ts` formatters (`Xh YYm`, `HH:MM:SS`, signed `+`/`−`).",
-      "**Do** keep each semantic tint to its single meaning: emerald for done or ahead, rose for owed or stop, sky for away or classes, amber for holiday or target.",
+      "**Do** keep each semantic tint to its single meaning: emerald for done or ahead, rose for owed or stop, sky for away or classes, amber for heads-up, indigo for now.",
       "**Do** use Focus Indigo for the one primary action and the current-moment indicators.",
-      "**Do** keep explanatory text in Muted Ink at 0.75–0.875rem below the number it explains."
+      "**Do** keep explanatory text in Muted Ink at 0.75–0.875rem below the number it explains, and show the steps behind any derived number on request.",
+      "**Do** answer every change to the log with a toast that can reverse it."
     ],
     "donts": [
       "**Don't** use emoji in the UI. Celebrate with color and copy instead (for example, emerald \"Daily goal reached\").",
       "**Don't** introduce new accent hues. Violet is permitted only as a decorative icon-chip tint.",
       "**Don't** add colored shadows in dark mode. Every tinted glow takes `dark:shadow-none`.",
       "**Don't** hand-format durations or use proportional digits for numbers that change.",
-      "**Don't** make one card heavier than the others with a bigger shadow. Use a semantic top edge or a tint."
+      "**Don't** make one card heavier than the others with a bigger shadow. Use a semantic top edge or a tint.",
+      "**Don't** repeat the same number in several cards on one screen."
     ]
   }
 }

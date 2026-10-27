@@ -25,18 +25,21 @@ export function useIntervals() {
     [setIntervals]
   );
 
+  /** Stops the running interval; `rawEndIso` records the real stop time when `endIso` was rounded. */
   const stop = useCallback(
-    (endIso?: string) => {
+    (endIso?: string, rawEndIso?: string) => {
       setIntervals((prev) =>
-        prev.map((i) => (i.end === null ? { ...i, end: endIso ?? isoNow() } : i))
+        prev.map((i) =>
+          i.end === null ? { ...i, end: endIso ?? isoNow(), ...(rawEndIso && rawEndIso !== endIso ? { rawEnd: rawEndIso } : {}) } : i
+        )
       );
     },
     [setIntervals]
   );
 
   const toggle = useCallback(
-    (stopEndIso?: string) => {
-      if (running) stop(stopEndIso);
+    (stopEndIso?: string, rawEndIso?: string) => {
+      if (running) stop(stopEndIso, rawEndIso);
       else start();
     },
     [running, start, stop]
@@ -66,7 +69,7 @@ export function useIntervals() {
 
   /** Manually correct an interval's start/end/label (e.g. forgot to stop the timer). */
   const update = useCallback(
-    (id: string, patch: Partial<Pick<TimeInterval, 'start' | 'end' | 'label'>>) => {
+    (id: string, patch: Partial<Pick<TimeInterval, 'start' | 'end' | 'label' | 'rawEnd'>>) => {
       setIntervals((prev) =>
         prev.map((i) => (i.id === id ? { ...i, ...patch } : i))
       );
