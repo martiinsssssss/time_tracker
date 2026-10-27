@@ -5,7 +5,7 @@ interface Props {
   label: string;
   value: string;
   hint?: string;
-  accent?: 'indigo' | 'emerald' | 'amber' | 'rose' | 'sky';
+  accent?: 'indigo' | 'emerald' | 'amber' | 'rose' | 'sky' | 'slate';
 }
 
 const ACCENTS: Record<NonNullable<Props['accent']>, string> = {
@@ -14,18 +14,19 @@ const ACCENTS: Record<NonNullable<Props['accent']>, string> = {
   amber: 'bg-amber-50 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400',
   rose: 'bg-rose-50 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400',
   sky: 'bg-sky-50 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400',
+  slate: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
 };
 
 export function StatTile({ icon: Icon, label, value, hint, accent = 'indigo' }: Props) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-3 transition-colors">
-      <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${ACCENTS[accent]}`}>
-        <Icon size={20} strokeWidth={2.25} />
+    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 sm:p-4 flex items-center gap-3 transition-colors">
+      <div className={`shrink-0 w-10 h-10 rounded-xl hidden sm:flex items-center justify-center ${ACCENTS[accent]}`}>
+        <Icon size={20} strokeWidth={2.25} aria-hidden />
       </div>
       <div className="min-w-0">
-        <p className="text-xs font-medium text-slate-400 dark:text-slate-500 truncate">{label}</p>
+        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate">{label}</p>
         <p className="text-lg font-extrabold text-slate-800 dark:text-slate-100 leading-tight truncate">{value}</p>
-        {hint && <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate">{hint}</p>}
+        {hint && <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{hint}</p>}
       </div>
     </div>
   );

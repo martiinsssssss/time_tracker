@@ -20,7 +20,7 @@ colors:
   desk: "oklch(96.8% 0.007 247.896)"
   well: "oklch(98.4% 0.003 247.858)"
   hairline: "oklch(92.9% 0.013 255.508)"
-  muted-ink: "oklch(70.4% 0.04 256.788)"
+  muted-ink: "oklch(55.4% 0.046 257.417)"
   soft-ink: "oklch(55.4% 0.046 257.417)"
   body-ink: "oklch(44.6% 0.043 257.281)"
   heading-ink: "oklch(27.9% 0.041 260.031)"
@@ -191,7 +191,7 @@ A cool slate neutral world with one confident indigo accent and four semantic ti
 - **Heading Ink** (`heading-ink`): card titles and hero numbers.
 - **Body Ink** (`body-ink`): field labels and the default row text.
 - **Soft Ink** (`soft-ink`): inactive nav tabs, legends and ghost buttons.
-- **Muted Ink** (`muted-ink`): hints, "of 40h" sublines, timestamps and weekday headers.
+- **Muted Ink** (`muted-ink`): hints, "of 40h" sublines, timestamps and weekday headers. It is slate-500 in light mode and slate-400 in dark mode, the lightest grey that still clears 4.5:1 on Paper at 11–12px. Never go lighter for text.
 - **Night Desk / Night Paper / Night Hairline / Night Heading Ink**: the dark-theme counterparts. The page is slate-900, cards are slate-800, borders are slate-700, and headings are slate-100. Semantic washes become ~40% alpha tints of the 900 shade.
 
 ### Named Rules
@@ -222,13 +222,15 @@ A cool slate neutral world with one confident indigo accent and four semantic ti
 
 A single centered column (max-width 1024px, 16px side gutters) under a sticky header. The Dashboard stacks sections with 24px gaps:
 
-1. Stat tiles: 2 columns on phones, 3 from 768px, 5 from 1024px, with 16px gaps.
+1. Stat tiles: three tiles (worked today, week so far, left this week), always 3 columns, with 8px gaps on phones and 16px from 640px.
 2. Timer and Today's workday: 1 column, then 2 from 768px, with 24px gaps.
-3. This week: weekday cards in 2 columns, then 5 from 640px, with 12px gaps.
-4. Calendar: a 7-column Monday-first grid of square cells with 4px gaps.
-5. Today's intervals.
+3. Today's intervals: the log sits directly under the timer.
+4. This week: weekday cards in 2 columns, then 5 from 640px, with 12px gaps.
+5. Calendar: a 7-column Monday-first grid with 4px gaps.
 
-Cards use 24px padding (16px for stat tiles). Inside a card, the heading sits 16px above the content, and related lines stack with 4–8px. Settings and History reuse the same full-width card stack. Breakpoints are Tailwind's defaults (`sm` 640, `md` 768, `lg` 1024). Below `sm`, the nav tabs collapse to icons only.
+Streak and PTO live on History, not the Dashboard.
+
+Cards use 24px padding (16px for stat tiles, 12px on phones). Inside a card, the heading sits 16px above the content, and related lines stack with 4–8px. Settings and History reuse the same full-width card stack. Breakpoints are Tailwind's defaults (`sm` 640, `md` 768, `lg` 1024). Below `sm`, the nav tabs collapse to icons only.
 
 ## Elevation & Depth
 
@@ -244,7 +246,7 @@ A lightly lifted system. Each card combines a 1px hairline border with Tailwind'
 
 ## Shapes
 
-Soft, friendly geometry. Radii step down as elements nest: cards are 16px, the big buttons, stat icon chips and weekday cards are 12px, inputs, interval rows, nav tabs, heading icon chips and calendar cells are 8px, and small buttons and chips are 6px. Badges, progress bars, status dots and the theme switch are fully round. Progress bars are thin pills (8px tall in the workday card, 6px in weekday cards) on a Desk-colored track. The calendar cells are perfect squares.
+Soft, friendly geometry. Radii step down as elements nest: cards are 16px, the big buttons, stat icon chips and weekday cards are 12px, inputs, interval rows, nav tabs, heading icon chips and calendar cells are 8px, and small buttons and chips are 6px. Badges, progress bars, status dots and the theme switch are fully round. Progress bars are thin pills (8px tall in the workday card, 6px in weekday cards) on a Desk-colored track. Calendar cells have a fixed height (40px, 44px from 640px) so the month stays compact at any width.
 
 ## Components
 
@@ -272,15 +274,19 @@ Tactile and clear.
 - **State edge:** the timer card shows a 4px emerald bar along its top edge while running.
 
 ### Stat Tile (signature)
-A compact card (16px padding) with a 40px rounded-12 icon chip on the left. The right side stacks a muted 0.75rem label, a heavy 1.125rem value and an optional 11px muted hint ("of 40h", "+1h 00m ahead"). Each tile has its own accent: indigo for today, emerald for the week, sky for what's left, amber for the streak, rose for PTO.
+A compact card (16px padding, 12px on phones) with a 40px rounded-12 icon chip on the left (hidden below 640px). The right side stacks a muted 0.75rem label, a heavy 1.125rem value and an optional 11px muted hint ("of 40h", "+1h 00m ahead"). Chip accents obey the One Meaning Rule. Indigo marks today and PTO (vacation). Slate is neutral and is used for the week total and the streak. "Left this week" turns emerald when ahead, rose when behind, and slate otherwise.
+
+### Toast
+A single app-wide slot, bottom-center: a slate-800 pill (slate-700 in dark mode) with white 0.875rem text, the Floating shadow and 12px radius. An optional indigo-300 action ("Undo", "Keep exact") and a dismiss button complete it. It lasts 7 seconds (10 seconds for a rounding notice), enters with a 180ms ease-out rise, and sits inside a polite live region. Every destructive or silently derived change to the log (delete, vacation toggle, stop rounding) answers with a toast that can reverse it.
 
 ### Inputs / Fields
 - **Style:** a 1px Hairline border on Paper, 8px radius, 8px × 12px padding and Body Ink text. In dark mode the field is slate-900 with a slate-600 border. The label sits above the field in 0.875rem Body Ink with a 4px gap.
 - **Compact (inline interval edit):** 6px radius with 4px × 8px padding and 0.75rem text.
-- **Focus:** browser default (no custom focus treatment is defined yet).
+- **Focus:** a global `:focus-visible` outline, 2px Focus Indigo (indigo-500, indigo-400 in dark mode) with a 2px offset. Text selection uses an indigo-100 wash (indigo-800 in dark mode).
+- **Error:** an invalid interval draft shows a rose-600 0.75rem message beside the actions and disables Save.
 
 ### Navigation
-A segmented control in the header: a Desk-colored track with 4px padding and 12px radius holds three tabs (Dashboard, History, Settings), each with a 15px icon and a 0.875rem medium label. The active tab is lifted onto Paper with Focus Indigo text and the card whisper, and inactive tabs use Soft Ink. Below 640px, only the icons show. The brand mark beside it is a 36px rounded-12 indigo-to-violet gradient tile with a white clock icon.
+A segmented control in the header: a Desk-colored track with 4px padding and 12px radius holds three tabs (Dashboard, History, Settings), each with a 15px icon and a 0.875rem medium label. The active tab is lifted onto Paper with Focus Indigo text and the card whisper, and inactive tabs use Soft Ink. Below 640px, only the icons show. The brand mark beside it is a 36px rounded-12 solid Focus Indigo tile with a white clock icon. The system has no gradients.
 
 ### Week Day Card (signature)
 A 12px-radius bordered tile per weekday. The header shows the weekday with a muted date and an icon if the day is a holiday or vacation. Below it sit a 6px progress pill, "worked / planned" in tabular 0.75rem, and 11px colored notes ("2h out" in sky, "+1h make-up" in rose, "−30m" in emerald). The tile ends with the Skip class chip when a class falls on that day. Today's tile gets an indigo-300 border with an indigo-50/50 wash, and past tiles drop to 70% opacity.

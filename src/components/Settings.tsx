@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Briefcase, CalendarClock, Download, Moon, Palette, PartyPopper, Sun } from 'lucide-react';
+import { Briefcase, CalendarClock, Download, Moon, Palette, PartyPopper, Sun, X } from 'lucide-react';
 import { useSettings } from '../hooks/useSettings';
 import { useHolidays } from '../hooks/useHolidays';
 import { listPresets } from '../lib/holidaysData';
@@ -128,7 +128,7 @@ export function SettingsPage() {
             {theme === 'dark' ? <Moon size={16} className="text-slate-400" /> : <Sun size={16} className="text-amber-400" />}
             <div>
               <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Dark mode</p>
-              <p className="text-xs text-slate-400 dark:text-slate-500">Switch the theme for the whole app</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Switch the theme for the whole app</p>
             </div>
           </div>
           <button
@@ -207,7 +207,7 @@ export function SettingsPage() {
               className={inputClass}
             />
           </label>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 max-w-md">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 max-w-md">
             When you stop the timer, if your total for the day lands within this many minutes of
             that day's target (normally {settings.workdayHours}h, adjusted for out-of-office time
             and make-up hours), it rounds to exactly the target instead
@@ -218,7 +218,7 @@ export function SettingsPage() {
 
         <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Hour bank</h3>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mb-3 max-w-md">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 max-w-md">
             Hours worked above or below each week's target carry over to the next week: being
             ahead lowers this week's target, being behind raises it. Only complete weeks since the
             start date count.
@@ -284,7 +284,7 @@ export function SettingsPage() {
             >
               {formatSigned(carryInMs)}
             </span>{' '}
-            <span className="text-xs text-slate-400 dark:text-slate-500">(carried into this week)</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">(carried into this week)</span>
           </p>
         </div>
       </div>
@@ -296,7 +296,7 @@ export function SettingsPage() {
           </span>
           Out of office
         </h2>
-        <p className="text-xs text-slate-400 dark:text-slate-500 mb-4 max-w-xl">
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 max-w-xl">
           Hours you can't work (e.g. classes). They lower that day's target and are spread as
           make-up time over the other days of the same week — your weekly target stays the same.
         </p>
@@ -401,7 +401,7 @@ export function SettingsPage() {
 
         <ul className="flex flex-col gap-1 mt-4 max-h-64 overflow-y-auto">
           {blocks.length === 0 && (
-            <li className="text-slate-400 dark:text-slate-500 text-sm">No out-of-office time configured yet.</li>
+            <li className="text-slate-500 dark:text-slate-400 text-sm">No out-of-office time configured yet.</li>
           )}
           {blocks.map((b) => (
             <li
@@ -410,14 +410,15 @@ export function SettingsPage() {
             >
               <span className="text-slate-600 dark:text-slate-300">
                 {describeBlock(b)}
-                {b.label && <span className="text-slate-400 dark:text-slate-500"> — {b.label}</span>}
+                {b.label && <span className="text-slate-500 dark:text-slate-400"> — {b.label}</span>}
                 <span className="text-sky-600 dark:text-sky-400 font-medium"> · {formatHM(blockLostMinutes(b) * 60_000)} lost</span>
               </span>
               <button
                 onClick={() => removeBlock(b.id)}
-                className="text-slate-300 dark:text-slate-500 hover:text-rose-500 transition-colors"
+                aria-label={`Remove out-of-office block: ${describeBlock(b)}`}
+                className="p-1 rounded-md text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
               >
-                ✕
+                <X size={15} />
               </button>
             </li>
           ))}
@@ -446,7 +447,7 @@ export function SettingsPage() {
                 </button>
               ))}
             </div>
-            {presetMsg && <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">{presetMsg}</p>}
+            {presetMsg && <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">{presetMsg}</p>}
           </div>
         )}
 
@@ -480,7 +481,7 @@ export function SettingsPage() {
 
         <ul className="flex flex-col gap-1 max-h-64 overflow-y-auto">
           {holidays.length === 0 && (
-            <li className="text-slate-400 dark:text-slate-500 text-sm">No holidays configured yet.</li>
+            <li className="text-slate-500 dark:text-slate-400 text-sm">No holidays configured yet.</li>
           )}
           {holidays.map((h) => (
             <li
@@ -492,9 +493,10 @@ export function SettingsPage() {
               </span>
               <button
                 onClick={() => removeHoliday(h.date)}
-                className="text-slate-300 dark:text-slate-500 hover:text-rose-500 transition-colors"
+                aria-label={`Remove holiday: ${h.name}`}
+                className="p-1 rounded-md text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
               >
-                ✕
+                <X size={15} />
               </button>
             </li>
           ))}

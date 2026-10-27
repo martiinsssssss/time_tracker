@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
-import { BarChart3, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { BarChart3, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Flame, PalmtreeIcon } from 'lucide-react';
 import { useIntervals } from '../hooks/useIntervals';
 import { useSettings } from '../hooks/useSettings';
 import { useNow } from '../hooks/useNow';
-import { dateKeyOf, formatHM, totalDurationForDay, todayKey } from '../lib/time';
+import { useVacations } from '../hooks/useVacations';
+import { computeStreak, dateKeyOf, formatHM, totalDurationForDay, todayKey } from '../lib/time';
 import { MonthlyChart } from './MonthlyChart';
 import { IntervalRow } from './IntervalRow';
+import { StatTile } from './StatTile';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -15,10 +17,14 @@ const MONTH_NAMES = [
 export function History() {
   const now = new Date();
   const [cursor, setCursor] = useState({ year: now.getFullYear(), month: now.getMonth() });
-  const { intervals, remove, update } = useIntervals();
+  const { intervals, remove, restore, update } = useIntervals();
+  const { vacationDates } = useVacations();
   const { settings } = useSettings();
   const liveNow = useNow(1000);
-  const today = todayKey();
+  const today = todayKey(new Date(liveNow));
+  const streak = computeStreak(intervals, liveNow);
+  const year = new Date(liveNow).getFullYear();
+  const remainingVacation = settings.vacationDaysTotal - vacationDates.filter((d) => d.startsWith(String(year))).length;
   const [expanded, setExpanded] = useState<string | null>(null);
 
   function prevMonth() {
@@ -46,6 +52,11 @@ export function History() {
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-2 gap-2 sm:gap-4">
+        <StatTile icon={Flame} label="Current streak" value={`${streak} day${streak === 1 ? '' : 's'}`} hint="days in a row with time logged" accent="slate" />
+        <StatTile icon={PalmtreeIcon} label="PTO days left" value={String(remainingVacation)} hint={`of ${settings.vacationDaysTotal} in ${year}`} accent="indigo" />
+      </div>
+
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg flex items-center gap-2">
@@ -55,13 +66,13 @@ export function History() {
             History
           </h2>
           <div className="flex items-center gap-2">
-            <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
+            <button onClick={prevMonth} aria-label="Previous month" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">
               <ChevronLeft size={18} />
             </button>
             <span className="font-semibold text-slate-700 dark:text-slate-200 min-w-[120px] text-center">
               {MONTH_NAMES[cursor.month]} {cursor.year}
             </span>
-            <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
+            <button onClick={nextMonth} aria-label="Next month" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">
               <ChevronRight size={18} />
             </button>
           </div>
@@ -79,7 +90,7 @@ export function History() {
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
         <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4">Logged days</h2>
         {daysWithData.length === 0 ? (
-          <p className="text-slate-400 dark:text-slate-500 text-sm">
+          <p className="text-slate-500 dark:text-slate-400 text-sm">
             No days logged yet this month.
           </p>
         ) : (
@@ -95,6 +106,7 @@ export function History() {
                 <li key={d.date} className="border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden">
                   <button
                     onClick={() => setExpanded(isOpen ? null : d.date)}
+                    aria-expanded={isOpen}
                     className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                   >
                     <span className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2">
@@ -110,16 +122,16 @@ export function History() {
                         {formatHM(d.ms)}
                       </span>
                       {isOpen ? (
-                        <ChevronUp size={16} className="text-slate-300 dark:text-slate-600" />
+                        <ChevronUp size={16} className="text-slate-400 dark:text-slate-500" aria-hidden />
                       ) : (
-                        <ChevronDown size={16} className="text-slate-300 dark:text-slate-600" />
+                        <ChevronDown size={16} className="text-slate-400 dark:text-slate-500" aria-hidden />
                       )}
                     </span>
                   </button>
                   {isOpen && (
                     <ul className="flex flex-col gap-2 px-4 pb-4">
                       {d.intervals.map((i) => (
-                        <IntervalRow key={i.id} interval={i} now={liveNow} onUpdate={update} onRemove={remove} />
+                        <IntervalRow key={i.id} interval={i} all={intervals} now={liveNow} onUpdate={update} onRemove={remove} onRestore={restore} />
                       ))}
                     </ul>
                   )}

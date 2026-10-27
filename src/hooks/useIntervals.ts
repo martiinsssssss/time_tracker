@@ -49,6 +49,14 @@ export function useIntervals() {
     [setIntervals]
   );
 
+  /** Puts back an interval that was just deleted (undo), keeping its id. */
+  const restore = useCallback(
+    (interval: TimeInterval) => {
+      setIntervals((prev) => (prev.some((i) => i.id === interval.id) ? prev : [...prev, interval]));
+    },
+    [setIntervals]
+  );
+
   const addManual = useCallback(
     (startIso: string, endIso: string, label?: string) => {
       setIntervals((prev) => [...prev, { id: uid(), start: startIso, end: endIso, label }]);
@@ -66,5 +74,5 @@ export function useIntervals() {
     [setIntervals]
   );
 
-  return { intervals, running, start, stop, toggle, remove, addManual, update };
+  return { intervals, running, start, stop, toggle, remove, restore, addManual, update };
 }

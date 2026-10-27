@@ -4,6 +4,8 @@ import { useHolidays } from '../hooks/useHolidays';
 import { useVacations } from '../hooks/useVacations';
 import { useSettings } from '../hooks/useSettings';
 import { useOutOfOffice } from '../hooks/useOutOfOffice';
+import { useNow } from '../hooks/useNow';
+import { showToast } from '../hooks/useToast';
 import { formatShort, todayKey } from '../lib/time';
 import { blockLostMinutes, blocksForDate, skipKey } from '../lib/week';
 
@@ -35,7 +37,8 @@ function buildMonth(year: number, month: number): DayCell[] {
 }
 
 export function Calendar() {
-  const now = new Date();
+  // Ticks each minute so today's ring follows a midnight rollover like the rest of the page.
+  const now = new Date(useNow(60_000));
   const [cursor, setCursor] = useState({ year: now.getFullYear(), month: now.getMonth() });
   const { holidays } = useHolidays();
   const { vacationDates, toggle } = useVacations();
@@ -45,7 +48,7 @@ export function Calendar() {
 
   const holidaySet = useMemo(() => new Map(holidays.map((h) => [h.date, h.name])), [holidays]);
   const vacationSet = useMemo(() => new Set(vacationDates), [vacationDates]);
-  const today = todayKey();
+  const today = todayKey(now);
 
   const cells = useMemo(() => buildMonth(cursor.year, cursor.month), [cursor]);
 
@@ -78,18 +81,18 @@ export function Calendar() {
       </div>
 
       <div className="flex items-center justify-between mb-3">
-        <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
+        <button onClick={prevMonth} aria-label="Previous month" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">
           <ChevronLeft size={18} />
         </button>
-        <button onClick={goToday} className="font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+        <button onClick={goToday} title="Back to this month" className="px-2 py-1 rounded-lg font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
           {MONTH_NAMES[cursor.month]} {cursor.year}
         </button>
-        <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
+        <button onClick={nextMonth} aria-label="Next month" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">
           <ChevronRight size={18} />
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-xs text-slate-400 dark:text-slate-500 mb-1">
+      <div className="grid grid-cols-7 gap-1 text-center text-xs text-slate-500 dark:text-slate-400 mb-1">
         {DAY_HEADERS.map((h, i) => (
           <div key={i}>{h}</div>
         ))}
@@ -111,24 +114,45 @@ export function Calendar() {
                 (isSkipped(b.id) ? 'Class skipped' : `${formatShort(blockLostMinutes(b) * 60_000)} lost`)
             )
             .join('\n');
+          // Only working days can become vacation; an existing mark can always be removed.
+          const canToggle = isVacation || (!cell.isWeekend && !isHoliday);
+          const dayName = new Date(`${cell.date}T00:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+          const state = isHoliday
+            ? `holiday: ${holidaySet.get(cell.date)}`
+            : isVacation
+              ? 'vacation'
+              : outOfOffice.length > 0
+                ? outOfOfficeTitle.replace(/\n/g, '; ')
+                : null;
           return (
             <button
               key={cell.date}
-              onClick={() => toggle(cell.date!)}
+              onClick={() => {
+                const date = cell.date!;
+                toggle(date);
+                showToast({
+                  message: `${isVacation ? 'Removed vacation on' : 'Marked as vacation:'} ${dayName}`,
+                  action: { label: 'Undo', run: () => toggle(date) },
+                });
+              }}
+              disabled={!canToggle}
+              aria-pressed={isVacation}
+              aria-current={isToday ? 'date' : undefined}
+              aria-label={`${isToday ? 'Today, ' : ''}${dayName}${state ? `, ${state}` : ''}`}
               title={isHoliday ? holidaySet.get(cell.date) : isVacation ? 'Vacation' : outOfOfficeTitle || undefined}
               className={[
-                'relative aspect-square rounded-lg text-sm flex items-center justify-center transition-colors',
+                'relative h-10 sm:h-11 rounded-lg text-sm flex items-center justify-center transition-colors tabular-nums disabled:cursor-default',
                 isHoliday ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 font-semibold' : '',
                 isVacation ? 'bg-indigo-600 text-white font-semibold' : '',
-                !isHoliday && !isVacation && cell.isWeekend ? 'text-slate-300 dark:text-slate-600' : '',
+                !isHoliday && !isVacation && cell.isWeekend ? 'text-slate-500 dark:text-slate-400' : '',
                 !isHoliday && !isVacation && !cell.isWeekend ? 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700' : '',
-                isToday ? 'ring-2 ring-indigo-400' : '',
+                isToday ? 'ring-2 ring-indigo-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-800' : '',
               ].join(' ')}
             >
               {cell.day}
               {outOfOffice.length > 0 && (
                 <span
-                  className={`absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${
+                  className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${
                     allSkipped ? 'border border-sky-500' : 'bg-sky-500'
                   }`}
                 />
@@ -151,7 +175,7 @@ export function Calendar() {
         <span className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full border border-sky-500 inline-block" /> Class skipped
         </span>
-        <span className="text-slate-400 dark:text-slate-500">Click a day to mark/unmark it as vacation</span>
+        <span className="text-slate-500 dark:text-slate-400">Click a working day to mark or unmark it as vacation</span>
       </div>
     </div>
   );

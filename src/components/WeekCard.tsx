@@ -6,6 +6,7 @@ import { formatHM, formatShort, formatSigned } from '../lib/time';
 import { skipKey } from '../lib/week';
 
 const WEEKDAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const WEEKDAY_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function WeekCard() {
   const now = useNow(1000);
@@ -25,16 +26,16 @@ export function WeekCard() {
           </span>
           This week
         </h2>
-        <div className="text-right">
+        <div className="w-full sm:w-auto sm:text-right">
           <p className="text-3xl font-extrabold text-slate-800 dark:text-slate-100 tabular-nums leading-tight">
-            {formatHM(plan.remainingMs)} <span className="text-base font-semibold text-slate-400 dark:text-slate-500">left</span>
+            {formatHM(plan.remainingMs)} <span className="text-base font-semibold text-slate-500 dark:text-slate-400">left</span>
           </p>
-          <p className="text-xs text-slate-400 dark:text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {formatHM(plan.workedMs)} of {formatShort(plan.effectiveTargetMs)}
             {plan.daysOff > 0 && ` · ${plan.daysOff} day${plan.daysOff === 1 ? '' : 's'} off`}
           </p>
           {Math.abs(plan.carryInMs) >= 60_000 && (
-            <p className="text-xs text-slate-400 dark:text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               From previous weeks:{' '}
               <span className={`font-semibold ${plan.carryInMs > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                 {formatSigned(plan.carryInMs)}
@@ -63,27 +64,35 @@ export function WeekCard() {
                 'rounded-xl border p-3 flex flex-col gap-2 transition-colors',
                 day.isToday
                   ? 'border-indigo-300 dark:border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20'
-                  : 'border-slate-200 dark:border-slate-700',
-                day.isPast ? 'opacity-70' : '',
+                  : day.isPast
+                    ? 'border-slate-100 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-900/30'
+                    : 'border-slate-200 dark:border-slate-700',
               ].join(' ')}
             >
               <div className="flex items-center justify-between text-sm">
                 <span className="font-semibold text-slate-700 dark:text-slate-200">
-                  {WEEKDAY_NAMES[day.weekday]} <span className="text-slate-400 dark:text-slate-500 font-normal">{dayOfMonth}</span>
+                  {WEEKDAY_NAMES[day.weekday]} <span className="text-slate-500 dark:text-slate-400 font-normal">{dayOfMonth}</span>
                 </span>
                 {day.offReason === 'holiday' && (
                   <span title="Holiday" className="text-amber-500">
-                    <PartyPopper size={15} />
+                    <PartyPopper size={15} aria-label="Holiday" />
                   </span>
                 )}
                 {day.offReason === 'vacation' && (
                   <span title="Vacation" className="text-indigo-500">
-                    <PalmtreeIcon size={15} />
+                    <PalmtreeIcon size={15} aria-label="Vacation" />
                   </span>
                 )}
               </div>
 
-              <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div
+                className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden"
+                role="progressbar"
+                aria-label={`${WEEKDAY_FULL[day.weekday]} progress`}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(pct)}
+              >
                 <div
                   className={`h-full rounded-full transition-all ${done ? 'bg-emerald-500' : 'bg-indigo-500'}`}
                   style={{ width: `${pct}%` }}
@@ -94,10 +103,10 @@ export function WeekCard() {
                 {day.isWorking ? (
                   <>
                     {formatShort(day.workedMs)}
-                    <span className="text-slate-400 dark:text-slate-500"> / {formatShort(day.plannedMs)}</span>
+                    <span className="text-slate-500 dark:text-slate-400"> / {formatShort(day.plannedMs)}</span>
                   </>
                 ) : (
-                  <span className="text-slate-400 dark:text-slate-500">
+                  <span className="text-slate-500 dark:text-slate-400">
                     {day.offReason === 'holiday' ? 'Holiday' : 'Vacation'}
                   </span>
                 )}
@@ -112,7 +121,7 @@ export function WeekCard() {
                     <span className="text-rose-600 dark:text-rose-400">+{formatShort(day.makeUpMs)} make-up</span>
                   )}
                   {!day.isPast && day.makeUpMs < 0 && (
-                    <span className="text-emerald-600 dark:text-emerald-400">−{formatShort(-day.makeUpMs)}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">−{formatShort(-day.makeUpMs)} ahead</span>
                   )}
                 </div>
               )}
@@ -124,6 +133,8 @@ export function WeekCard() {
               {day.blocks.length > 0 && (
                 <button
                   onClick={() => setSkipped(day.blocks.map((b) => skipKey(b.block.id, day.date)), !day.skipped)}
+                  aria-pressed={day.skipped}
+                  aria-label={`${day.skipped ? 'Undo skip' : 'Skip class'} on ${WEEKDAY_FULL[day.weekday]}`}
                   className="self-start text-[11px] font-medium px-2 py-0.5 rounded-md border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/40 transition-colors"
                 >
                   {day.skipped ? 'Undo skip' : 'Skip class'}

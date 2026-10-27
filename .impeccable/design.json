@@ -22,7 +22,7 @@
       "desk": { "role": "neutral", "displayName": "Desk", "canonical": "oklch(96.8% 0.007 247.896)", "tonalRamp": ["oklch(12.9% 0.042 264.695)", "oklch(20.8% 0.042 265.755)", "oklch(27.9% 0.041 260.031)", "oklch(37.2% 0.044 257.287)", "oklch(55.4% 0.046 257.417)", "oklch(70.4% 0.04 256.788)", "oklch(92.9% 0.013 255.508)", "oklch(98.4% 0.003 247.858)"] },
       "well": { "role": "neutral", "displayName": "Well", "canonical": "oklch(98.4% 0.003 247.858)" },
       "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "oklch(92.9% 0.013 255.508)" },
-      "muted-ink": { "role": "neutral", "displayName": "Muted Ink", "canonical": "oklch(70.4% 0.04 256.788)" },
+      "muted-ink": { "role": "neutral", "displayName": "Muted Ink", "canonical": "oklch(55.4% 0.046 257.417)" },
       "soft-ink": { "role": "neutral", "displayName": "Soft Ink", "canonical": "oklch(55.4% 0.046 257.417)" },
       "body-ink": { "role": "neutral", "displayName": "Body Ink", "canonical": "oklch(44.6% 0.043 257.281)" },
       "heading-ink": { "role": "neutral", "displayName": "Heading Ink", "canonical": "oklch(27.9% 0.041 260.031)" },

@@ -59,7 +59,7 @@ export function MonthlyChart({ intervals, year, month, targetHours, now }: Props
         <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tabular-nums">
           {formatHM(monthTotalMs)}
         </span>
-        <span className="text-slate-400 dark:text-slate-500 text-sm">month total</span>
+        <span className="text-slate-500 dark:text-slate-400 text-sm">month total</span>
       </div>
 
       <div className="relative">
@@ -134,7 +134,7 @@ export function MonthlyChart({ intervals, year, month, targetHours, now }: Props
         )}
       </div>
 
-      <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-1 px-0.5">
+      <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 mt-1 px-0.5">
         <span>1</span>
         <span>{points.length}</span>
       </div>
