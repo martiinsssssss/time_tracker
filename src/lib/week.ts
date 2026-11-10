@@ -88,15 +88,15 @@ export function firstTrackedDate(intervals: TimeInterval[], now: number): string
 }
 
 /**
- * weeklyTargetHours minus one workday per Mon–Fri holiday/vacation day of the
+ * weeklyTargetHours minus one workday per Mon–Fri holiday/vacation/absence day of the
  * week starting on `monday`, and per weekday before `trackedFrom`.
  */
-function weekTargetFor(monday: Date, holidays: Set<string>, vacations: Set<string>, settings: Pick<Settings, 'workdayHours' | 'weeklyTargetHours'>, trackedFrom: string): number {
+function weekTargetFor(monday: Date, holidays: Set<string>, vacations: Set<string>, absences: Set<string>, settings: Pick<Settings, 'workdayHours' | 'weeklyTargetHours'>, trackedFrom: string): number {
   const cursor = new Date(monday);
   let daysOff = 0;
   for (let i = 0; i < 5; i++) {
     const date = todayKey(cursor);
-    if (holidays.has(date) || vacations.has(date) || date < trackedFrom) daysOff++;
+    if (holidays.has(date) || vacations.has(date) || absences.has(date) || date < trackedFrom) daysOff++;
     cursor.setDate(cursor.getDate() + 1);
   }
   return Math.max(0, settings.weeklyTargetHours * HOUR - settings.workdayHours * HOUR * daysOff);
@@ -113,7 +113,8 @@ export function computeCarryInMs(
   vacations: Set<string>,
   settings: Pick<Settings, 'workdayHours' | 'weeklyTargetHours'> &
     Partial<Pick<Settings, 'balanceStartDate' | 'balanceInitialMinutes'>>,
-  now: number
+  now: number,
+  absences: Set<string> = new Set()
 ): number {
   let carry = (settings.balanceInitialMinutes || 0) * MINUTE;
   if (!settings.balanceStartDate || !/^\d{4}-\d{2}-\d{2}$/.test(settings.balanceStartDate)) return carry;
@@ -131,14 +132,18 @@ export function computeCarryInMs(
   }
 
   while (cursor.getTime() < thisWeek) {
-    carry += (workedByWeek.get(todayKey(cursor)) ?? 0) - weekTargetFor(cursor, holidays, vacations, settings, trackedFrom);
+    carry += (workedByWeek.get(todayKey(cursor)) ?? 0) - weekTargetFor(cursor, holidays, vacations, absences, settings, trackedFrom);
     cursor.setDate(cursor.getDate() + 7);
   }
   return carry;
 }
 
-/** 'untracked' = a weekday before the first logged interval. */
-export type OffReason = 'weekend' | 'holiday' | 'vacation' | 'untracked' | null;
+/**
+ * 'absence' = a justified absence (sick leave, strike…): like vacation it
+ * lowers the weekly target, but it doesn't use up vacation days.
+ * 'untracked' = a weekday before the first logged interval.
+ */
+export type OffReason = 'weekend' | 'holiday' | 'vacation' | 'absence' | 'untracked' | null;
 
 export interface DayBlock {
   block: OutOfOfficeBlock;
@@ -184,6 +189,8 @@ export interface WeekPlan {
   effectiveTargetMs: number;
   /** Mon–Fri days that are a holiday or vacation */
   daysOff: number;
+  /** Mon–Fri days that are a justified absence */
+  absenceDays: number;
   workedMs: number;
   remainingMs: number;
   /** positive = ahead of plan, negative = hours still to make up */
@@ -207,8 +214,9 @@ interface BuildWeekPlanInput {
   skips?: string[];
   holidayDates: string[];
   vacationDates: string[];
+  absenceDates?: string[];
   settings: Pick<Settings, 'workdayHours' | 'weeklyTargetHours'> &
-    Partial<Pick<Settings, 'balanceStartDate' | 'balanceInitialMinutes'>>;
+    Partial<Pick<Settings, 'balanceStartDate' | 'balanceInitialMinutes' | 'keepFridayNormal' | 'maxDailyHours'>>;
   now: number;
 }
 
@@ -224,6 +232,24 @@ function spreadReduction(days: WeekDay[], amountMs: number) {
     remaining -= step * active.length;
     active = active.filter((d) => d.plannedMs > 0);
   }
+}
+
+/**
+ * Adds `amountMs` to `days` as evenly as possible without taking any day past
+ * `capMs` (a day already above it gets nothing). Returns what didn't fit.
+ */
+function fillUpTo(days: WeekDay[], amountMs: number, capMs: number): number {
+  let remaining = amountMs;
+  let active = days.filter((d) => d.plannedMs < capMs);
+  while (remaining > 1e-6 && active.length > 0) {
+    const share = remaining / active.length;
+    const room = Math.min(...active.map((d) => capMs - d.plannedMs));
+    const step = Math.min(share, room);
+    for (const day of active) day.plannedMs += step;
+    remaining -= step * active.length;
+    active = active.filter((d) => d.plannedMs < capMs - 1e-6);
+  }
+  return Math.max(0, remaining);
 }
 
 /**
@@ -251,11 +277,15 @@ function roundToMinutes(days: WeekDay[]) {
  * - out-of-office time (unless skipped or worked through) lowers that day's
  *   target but not the week's, so missing hours are spread evenly over the
  *   remaining working days without out-of-office time (or all of them, if
- *   none). Being ahead lowers every remaining working day evenly instead.
+ *   none). With `keepFridayNormal` (default) Friday is left out of the
+ *   make-up unless it's the only working day left. Being ahead lowers every
+ *   remaining working day evenly instead.
+ * - justified absences lower the weekly target like vacation days.
  */
-export function buildWeekPlan({ intervals, blocks, skips = [], holidayDates, vacationDates, settings, now }: BuildWeekPlanInput): WeekPlan {
+export function buildWeekPlan({ intervals, blocks, skips = [], holidayDates, vacationDates, absenceDates = [], settings, now }: BuildWeekPlanInput): WeekPlan {
   const holidays = new Set(holidayDates);
   const vacations = new Set(vacationDates);
+  const absences = new Set(absenceDates);
   const skipSet = new Set(skips);
   const workdayMs = settings.workdayHours * HOUR;
   const todayStr = todayKey(new Date(now));
@@ -274,7 +304,9 @@ export function buildWeekPlan({ intervals, blocks, skips = [], holidayDates, vac
         ? 'holiday'
         : vacations.has(date)
           ? 'vacation'
-          : date < trackedFrom
+          : absences.has(date)
+            ? 'absence'
+            : date < trackedFrom
             ? 'untracked'
             : null;
     const isWorking = offReason === null;
@@ -314,8 +346,9 @@ export function buildWeekPlan({ intervals, blocks, skips = [], holidayDates, vac
   }
 
   const daysOff = days.filter((d) => d.offReason === 'holiday' || d.offReason === 'vacation').length;
-  const weekTargetMs = weekTargetFor(monday, holidays, vacations, settings, trackedFrom);
-  const carryInMs = computeCarryInMs(intervals, holidays, vacations, settings, now);
+  const absenceDays = days.filter((d) => d.offReason === 'absence').length;
+  const weekTargetMs = weekTargetFor(monday, holidays, vacations, absences, settings, trackedFrom);
+  const carryInMs = computeCarryInMs(intervals, holidays, vacations, settings, now, absences);
   const effectiveTargetMs = Math.max(0, weekTargetMs - carryInMs);
 
   const workedBeforeToday = days.filter((d) => d.isPast).reduce((sum, d) => sum + d.workedMs, 0);
@@ -324,9 +357,20 @@ export function buildWeekPlan({ intervals, blocks, skips = [], holidayDates, vac
   const extraMs = needFromToday - upcoming.reduce((sum, d) => sum + d.baseMs, 0);
 
   if (extraMs > 0) {
-    const withoutOutOfOffice = upcoming.filter((d) => d.outOfOfficeMs === 0);
-    const sharers = withoutOutOfOffice.length > 0 ? withoutOutOfOffice : upcoming;
-    for (const day of sharers) day.plannedMs += extraMs / sharers.length;
+    // Make-up goes to days in this order, each tier filled up to the daily cap before the next:
+    // days without out-of-office, then days with it, then Friday (when keepFridayNormal).
+    const keepFriday = settings.keepFridayNormal !== false;
+    const isFriday = (d: WeekDay) => keepFriday && d.weekday === 5;
+    const tiers = [
+      upcoming.filter((d) => !isFriday(d) && d.outOfOfficeMs === 0),
+      upcoming.filter((d) => !isFriday(d) && d.outOfOfficeMs > 0),
+      upcoming.filter(isFriday),
+    ];
+    const capMs = (settings.maxDailyHours ?? 0) > 0 ? settings.maxDailyHours! * HOUR : Infinity;
+    let left = extraMs;
+    for (const tier of tiers) left = fillUpTo(tier, left, capMs);
+    // Even capped days can't hold it all: spread the rest over every day, past the cap.
+    if (left > 0) for (const day of upcoming) day.plannedMs += left / upcoming.length;
   } else if (extraMs < 0) {
     spreadReduction(upcoming, -extraMs);
   }
@@ -342,6 +386,7 @@ export function buildWeekPlan({ intervals, blocks, skips = [], holidayDates, vac
     carryInMs,
     effectiveTargetMs,
     daysOff,
+    absenceDays,
     workedMs,
     remainingMs: Math.max(0, effectiveTargetMs - workedMs),
     aheadMs: -extraMs,

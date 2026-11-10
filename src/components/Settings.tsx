@@ -99,6 +99,7 @@ export function SettingsPage() {
       settings,
       holidays,
       vacationDates: JSON.parse(localStorage.getItem('tt.vacationDates') ?? '[]'),
+      absences: JSON.parse(localStorage.getItem('tt.absences') ?? '[]'),
       outOfOffice: blocks,
       outOfOfficeSkips: skips,
     };
@@ -213,6 +214,41 @@ export function SettingsPage() {
             and make-up hours), it rounds to exactly the target instead
             of the raw time — e.g. with a 15-minute margin, 7h 47m rounds up to 8h and 8h 10m
             rounds down to 8h. Set to 0 to turn this off.
+          </p>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+          <label className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-200 max-w-md">
+            <input
+              type="checkbox"
+              checked={settings.keepFridayNormal}
+              onChange={(e) => update({ keepFridayNormal: e.target.checked })}
+              className="mt-0.5 w-4 h-4 accent-indigo-600"
+            />
+            <span>
+              <span className="font-medium">Keep Friday at normal hours</span>
+              <span className="block text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Hours to make up go to the days before Friday. Friday only takes make-up hours
+                when it's the last working day left. Off = spread over every remaining day.
+              </span>
+            </span>
+          </label>
+          <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300 max-w-xs mt-4">
+            Max hours per day with make-up
+            <input
+              type="number"
+              min={0}
+              max={24}
+              step={0.5}
+              value={settings.maxDailyHours}
+              onChange={(e) => update({ maxDailyHours: Math.max(0, Number(e.target.value)) })}
+              className={inputClass}
+            />
+          </label>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 max-w-md">
+            Make-up hours fill days up to this limit; what doesn't fit moves to days with
+            out-of-office time, then Friday. Only if every day is full does a day go past it.
+            Set to 0 for no limit.
           </p>
         </div>
 

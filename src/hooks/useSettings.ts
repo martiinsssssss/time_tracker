@@ -11,6 +11,8 @@ const DEFAULTS: Omit<Settings, 'balanceStartDate'> = {
   vacationDaysTotal: 22,
   roundingMarginMinutes: 0,
   balanceInitialMinutes: 0,
+  keepFridayNormal: true,
+  maxDailyHours: 9.5,
 };
 
 export function useSettings() {

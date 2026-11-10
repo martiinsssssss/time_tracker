@@ -1,4 +1,4 @@
-import { CalendarRange, ChevronRight, PalmtreeIcon, PartyPopper } from 'lucide-react';
+import { CalendarRange, ChevronRight, HeartPulse, PalmtreeIcon, PartyPopper } from 'lucide-react';
 import { useNow } from '../hooks/useNow';
 import { useSettings } from '../hooks/useSettings';
 import { useWeekPlan } from '../hooks/useWeekPlan';
@@ -30,6 +30,8 @@ export function WeekCard() {
     { label: 'Weekly target', value: formatHM(settings.weeklyTargetHours * HOUR) },
   ];
   if (plan.daysOff > 0) steps.push({ label: `Holidays and vacation (${plural(plan.daysOff, 'day')})`, value: `−${formatHM(plan.daysOff * workdayMs)}` });
+  if (plan.absenceDays > 0)
+    steps.push({ label: `Justified absences (${plural(plan.absenceDays, 'day')})`, value: `−${formatHM(plan.absenceDays * workdayMs)}` });
   if (plan.untrackedDays > 0)
     steps.push({ label: `Before you started tracking (${plural(plan.untrackedDays, 'day')})`, value: `−${formatHM(plan.untrackedDays * workdayMs)}` });
   if (Math.abs(plan.carryInMs) >= 60_000)
@@ -115,6 +117,11 @@ export function WeekCard() {
                     <PartyPopper size={15} aria-label="Holiday" />
                   </span>
                 )}
+                {day.offReason === 'absence' && (
+                  <span title="Justified absence" className="text-rose-500">
+                    <HeartPulse size={15} aria-label="Justified absence" />
+                  </span>
+                )}
                 {day.offReason === 'vacation' && (
                   <span title="Vacation" className="text-slate-500 dark:text-slate-400">
                     <PalmtreeIcon size={15} aria-label="Vacation" />
@@ -145,7 +152,7 @@ export function WeekCard() {
                   </>
                 ) : (
                   <span className="text-slate-500 dark:text-slate-400">
-                    {day.offReason === 'holiday' ? 'Holiday' : day.offReason === 'vacation' ? 'Vacation' : 'Not tracked yet'}
+                    {day.offReason === 'holiday' ? 'Holiday' : day.offReason === 'vacation' ? 'Vacation' : day.offReason === 'absence' ? 'Justified absence' : 'Not tracked yet'}
                   </span>
                 )}
               </p>

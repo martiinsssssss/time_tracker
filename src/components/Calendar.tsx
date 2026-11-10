@@ -3,6 +3,8 @@ import type { KeyboardEvent } from 'react';
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, PalmtreeIcon } from 'lucide-react';
 import { useHolidays } from '../hooks/useHolidays';
 import { useVacations } from '../hooks/useVacations';
+import { ABSENCE_LABELS, useAbsences } from '../hooks/useAbsences';
+import type { AbsenceReason } from '../types';
 import { useSettings } from '../hooks/useSettings';
 import { useOutOfOffice } from '../hooks/useOutOfOffice';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -51,6 +53,9 @@ export function Calendar() {
   const cellRefs = useRef(new Map<string, HTMLButtonElement>());
   const { holidays } = useHolidays();
   const { vacationDates, toggle } = useVacations();
+  const { byDate: absenceByDate, toggle: toggleAbsence } = useAbsences();
+  // What clicking a working day marks: 'vacation' or a justified-absence reason.
+  const [markMode, setMarkMode] = useLocalStorage<'vacation' | AbsenceReason>('tt.ui.calendarMark', 'vacation');
   const { settings } = useSettings();
   const { blocks, skips } = useOutOfOffice();
   const skipSet = useMemo(() => new Set(skips), [skips]);
@@ -121,6 +126,21 @@ export function Calendar() {
 
       {open && (
         <div id="calendar-body" className="mt-4">
+          <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 mb-3">
+            Clicking a day marks it as
+            <select
+              value={markMode}
+              onChange={(e) => setMarkMode(e.target.value as 'vacation' | AbsenceReason)}
+              className="border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 rounded-lg px-2 py-1"
+            >
+              <option value="vacation">Vacation (uses PTO)</option>
+              {(Object.keys(ABSENCE_LABELS) as AbsenceReason[]).map((r) => (
+                <option key={r} value={r}>
+                  {ABSENCE_LABELS[r]} (justified)
+                </option>
+              ))}
+            </select>
+          </label>
           <div className="flex items-center justify-between mb-3">
             <button onClick={prevMonth} aria-label="Previous month" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">
               <ChevronLeft size={18} aria-hidden />
@@ -145,8 +165,10 @@ export function Calendar() {
               const date = cell.date;
               const isHoliday = holidaySet.has(date);
               const isVacation = vacationSet.has(date);
+              const absenceReason = absenceByDate.get(date);
+              const isAbsence = absenceReason !== undefined;
               const isToday = date === today;
-              const outOfOffice = !cell.isWeekend && !isHoliday && !isVacation ? blocksForDate(blocks, date) : [];
+              const outOfOffice = !cell.isWeekend && !isHoliday && !isVacation && !isAbsence ? blocksForDate(blocks, date) : [];
               const isSkipped = (id: string) => skipSet.has(skipKey(id, date));
               const allSkipped = outOfOffice.length > 0 && outOfOffice.every((b) => isSkipped(b.id));
               const outOfOfficeTitle = outOfOffice
@@ -156,17 +178,19 @@ export function Calendar() {
                     (isSkipped(b.id) ? 'Class skipped' : `${formatShort(blockLostMinutes(b) * 60_000)} lost`)
                 )
                 .join('\n');
-              // Only working days can become vacation; an existing mark can always be removed.
-              const canToggle = isVacation || (!cell.isWeekend && !isHoliday);
+              // Only working days can be marked; an existing mark can always be removed.
+              const canToggle = isVacation || isAbsence || (!cell.isWeekend && !isHoliday);
               const dayName = new Date(`${date}T00:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
               const state = isHoliday
                 ? `holiday: ${holidaySet.get(date)}`
                 : isVacation
                   ? 'vacation'
-                  : outOfOffice.length > 0
+                  : isAbsence
+                    ? `justified absence: ${ABSENCE_LABELS[absenceReason]}`
+                    : outOfOffice.length > 0
                     ? outOfOfficeTitle.replace(/\n/g, '; ')
                     : null;
-              const plain = !isHoliday && !isVacation;
+              const plain = !isHoliday && !isVacation && !isAbsence;
               return (
                 <button
                   key={date}
@@ -179,21 +203,37 @@ export function Calendar() {
                   onFocus={() => setFocusDate(date)}
                   onClick={() => {
                     if (!canToggle) return;
-                    toggle(date);
-                    showToast({
-                      message: `${isVacation ? 'Removed vacation on' : 'Marked as vacation:'} ${dayName}`,
-                      action: { label: 'Undo', run: () => toggle(date) },
-                    });
+                    // An existing mark is removed whatever the mode; a free day gets the current mode.
+                    if (isAbsence) {
+                      toggleAbsence(date, absenceReason);
+                      showToast({
+                        message: `Removed ${ABSENCE_LABELS[absenceReason].toLowerCase()} on ${dayName}`,
+                        action: { label: 'Undo', run: () => toggleAbsence(date, absenceReason) },
+                      });
+                    } else if (isVacation || markMode === 'vacation') {
+                      toggle(date);
+                      showToast({
+                        message: `${isVacation ? 'Removed vacation on' : 'Marked as vacation:'} ${dayName}`,
+                        action: { label: 'Undo', run: () => toggle(date) },
+                      });
+                    } else {
+                      toggleAbsence(date, markMode);
+                      showToast({
+                        message: `Marked as ${ABSENCE_LABELS[markMode].toLowerCase()}: ${dayName}`,
+                        action: { label: 'Undo', run: () => toggleAbsence(date, markMode) },
+                      });
+                    }
                   }}
                   aria-disabled={!canToggle || undefined}
-                  aria-pressed={canToggle ? isVacation : undefined}
+                  aria-pressed={canToggle ? isVacation || isAbsence : undefined}
                   aria-current={isToday ? 'date' : undefined}
                   aria-label={`${isToday ? 'Today, ' : ''}${dayName}${state ? `, ${state}` : ''}`}
-                  title={isHoliday ? holidaySet.get(date) : isVacation ? 'Vacation' : outOfOfficeTitle || undefined}
+                  title={isHoliday ? holidaySet.get(date) : isVacation ? 'Vacation' : isAbsence ? ABSENCE_LABELS[absenceReason] : outOfOfficeTitle || undefined}
                   className={[
                     'relative h-10 sm:h-11 rounded-lg text-sm flex items-center justify-center transition-colors tabular-nums',
                     canToggle ? '' : 'cursor-default',
                     isHoliday ? 'bg-amber-100 dark:bg-amber-400/20 text-amber-800 dark:text-amber-200 font-semibold' : '',
+                    isAbsence ? 'bg-rose-100 dark:bg-rose-400/20 text-rose-800 dark:text-rose-200 font-semibold hover:bg-rose-200 dark:hover:bg-rose-400/30' : '',
                     isVacation ? 'bg-slate-300 dark:bg-slate-500 text-slate-900 dark:text-white font-semibold hover:bg-slate-400/70 dark:hover:bg-slate-400/60' : '',
                     plain && isToday ? 'bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 font-bold' : '',
                     plain && !isToday && cell.isWeekend ? 'bg-slate-50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400' : '',
@@ -226,12 +266,15 @@ export function Calendar() {
               <span className="w-3 h-3 rounded bg-slate-300 dark:bg-slate-500 inline-block" /> Vacation
             </span>
             <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded bg-rose-100 dark:bg-rose-400/20 inline-block" /> Justified absence
+            </span>
+            <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-sky-500 inline-block" /> Out of office
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full border border-sky-500 inline-block" /> Class skipped
             </span>
-            <span className="basis-full">Click a working day to mark or unmark it as vacation. Arrow keys move between days.</span>
+            <span className="basis-full">Click a working day to mark it; click a marked day to clear it. Justified absences lower the target and don't use PTO. Arrow keys move between days.</span>
           </div>
         </div>
       )}

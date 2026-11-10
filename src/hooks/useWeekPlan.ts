@@ -2,6 +2,7 @@ import { useIntervals } from './useIntervals';
 import { useOutOfOffice } from './useOutOfOffice';
 import { useHolidays } from './useHolidays';
 import { useVacations } from './useVacations';
+import { useAbsences } from './useAbsences';
 import { useSettings } from './useSettings';
 import { buildWeekPlan } from '../lib/week';
 
@@ -11,6 +12,7 @@ export function useWeekPlan(now: number) {
   const { blocks, skips } = useOutOfOffice();
   const { holidays } = useHolidays();
   const { vacationDates } = useVacations();
+  const { absenceDates } = useAbsences();
   const { settings } = useSettings();
 
   return buildWeekPlan({
@@ -19,6 +21,7 @@ export function useWeekPlan(now: number) {
     skips,
     holidayDates: holidays.map((h) => h.date),
     vacationDates,
+    absenceDates,
     settings,
     now,
   });

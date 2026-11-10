@@ -33,6 +33,24 @@ export interface Settings {
   balanceStartDate: string;
   /** Signed starting balance for the hour bank, in minutes (positive = ahead). */
   balanceInitialMinutes: number;
+  /**
+   * Hours to make up go to the days before Friday; Friday keeps its usual
+   * hours unless it's the only working day left. false = spread over all days.
+   */
+  keepFridayNormal: boolean;
+  /**
+   * Make-up hours won't push a day past this many hours while other days
+   * still have room. 0 = no cap.
+   */
+  maxDailyHours: number;
+}
+
+export type AbsenceReason = 'sick' | 'strike' | 'medical' | 'other';
+
+/** A justified full-day absence: lowers the target, never has to be made up. */
+export interface Absence {
+  date: string; // YYYY-MM-DD
+  reason: AbsenceReason;
 }
 
 export interface HolidayEntry {
