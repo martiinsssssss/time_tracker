@@ -4,6 +4,7 @@ import { useIntervals } from '../hooks/useIntervals';
 import { useSettings } from '../hooks/useSettings';
 import { useNow } from '../hooks/useNow';
 import { useVacations } from '../hooks/useVacations';
+import { formatDay, openPools, vacationPools } from '../lib/vacation';
 import { computeStreak, dateKeyOf, formatHM, totalDurationForDay, todayKey } from '../lib/time';
 import { MonthlyChart } from './MonthlyChart';
 import { IntervalRow } from './IntervalRow';
@@ -24,7 +25,9 @@ export function History() {
   const today = todayKey(new Date(liveNow));
   const streak = computeStreak(intervals, liveNow);
   const year = new Date(liveNow).getFullYear();
-  const remainingVacation = settings.vacationDaysTotal - vacationDates.filter((d) => d.startsWith(String(year))).length;
+  const pools = openPools(vacationPools(vacationDates, settings), today);
+  const remainingVacation = pools.reduce((sum, p) => sum + p.remaining, 0);
+  const nextExpiring = pools.find((p) => p.remaining > 0);
   const [expanded, setExpanded] = useState<string | null>(null);
 
   function prevMonth() {
@@ -54,7 +57,7 @@ export function History() {
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-2 sm:gap-4">
         <StatTile icon={Flame} label="Current streak" value={`${streak} day${streak === 1 ? '' : 's'}`} hint="days in a row with time" accent="slate" />
-        <StatTile icon={PalmtreeIcon} label="PTO days left" value={String(remainingVacation)} hint={`of ${settings.vacationDaysTotal} in ${year}`} accent="indigo" />
+        <StatTile icon={PalmtreeIcon} label="PTO days left" value={String(remainingVacation)} hint={nextExpiring ? `${nextExpiring.remaining} from ${nextExpiring.year} expire ${formatDay(nextExpiring.end)}` : `${year}`} accent="indigo" />
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">

@@ -11,6 +11,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useNow } from '../hooks/useNow';
 import { showToast } from '../hooks/useToast';
 import { formatShort, todayKey } from '../lib/time';
+import { formatDay, openPools, vacationPools } from '../lib/vacation';
 import { blockLostMinutes, blocksForDate, parseDateKey, skipKey } from '../lib/week';
 
 const MONTH_NAMES = [
@@ -67,8 +68,7 @@ export function Calendar() {
   const monthPrefix = `${cursor.year}-${String(cursor.month + 1).padStart(2, '0')}`;
   const tabbableDate = focusDate.startsWith(monthPrefix) ? focusDate : `${monthPrefix}-01`;
 
-  const vacationsThisYear = vacationDates.filter((d) => d.startsWith(String(cursor.year))).length;
-  const remaining = settings.vacationDaysTotal - vacationsThisYear;
+  const pools = useMemo(() => openPools(vacationPools(vacationDates, settings), today), [vacationDates, settings, today]);
 
   useEffect(() => {
     if (!moveFocus.current) return;
@@ -120,7 +120,13 @@ export function Calendar() {
         </h2>
         <div className="flex items-center gap-2 text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-full font-medium tabular-nums">
           <PalmtreeIcon size={15} aria-hidden />
-          {remaining} / {settings.vacationDaysTotal} PTO days left ({cursor.year})
+          {pools.map((p, i) => (
+            <span key={p.year} title={`${p.used} of ${p.total} used · usable ${formatDay(p.start)} – ${formatDay(p.end)}`}>
+              {i > 0 && <span aria-hidden className="mx-1 text-slate-400">·</span>}
+              {p.remaining} PTO {p.year}
+              {i === 0 && pools.length > 1 && <span className="text-slate-500 dark:text-slate-400 font-normal"> (until {formatDay(p.end)})</span>}
+            </span>
+          ))}
         </div>
       </div>
 

@@ -196,6 +196,49 @@ export function SettingsPage() {
         </div>
 
         <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Leftover vacation days</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 max-w-md">
+            Each year's days stay usable until the expiry date of the following year. Vacation
+            uses the oldest days first; once they run out, it takes from the new year's allowance.
+          </p>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
+              Days left
+              <input
+                type="number"
+                min={0}
+                max={365}
+                step={1}
+                value={settings.vacationCarryDays}
+                onChange={(e) => update({ vacationCarryDays: Math.max(0, Number(e.target.value)) })}
+                className={`${inputClass} w-24`}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
+              As of
+              <input
+                type="date"
+                value={settings.vacationCarryFrom}
+                onChange={(e) => update({ vacationCarryFrom: e.target.value })}
+                className={inputClass}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
+              Expire on (next year)
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="\d{2}-\d{2}"
+                placeholder="MM-DD"
+                value={settings.vacationExpiry}
+                onChange={(e) => update({ vacationExpiry: e.target.value })}
+                className={`${inputClass} w-28`}
+              />
+            </label>
+          </div>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
           <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300 max-w-xs">
             Rounding margin (minutes)
             <input

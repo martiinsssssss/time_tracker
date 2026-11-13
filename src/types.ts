@@ -43,6 +43,12 @@ export interface Settings {
    * still have room. 0 = no cap.
    */
   maxDailyHours: number;
+  /** Vacation days still left from an earlier allowance, as of `vacationCarryFrom`. */
+  vacationCarryDays: number;
+  /** YYYY-MM-DD the carried-over count applies from; '' = not set. */
+  vacationCarryFrom: string;
+  /** MM-DD of the following year when a year's vacation days expire, e.g. '02-28'. */
+  vacationExpiry: string;
 }
 
 export type AbsenceReason = 'sick' | 'strike' | 'medical' | 'other';

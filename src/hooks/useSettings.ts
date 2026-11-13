@@ -13,6 +13,9 @@ const DEFAULTS: Omit<Settings, 'balanceStartDate'> = {
   balanceInitialMinutes: 0,
   keepFridayNormal: true,
   maxDailyHours: 9.5,
+  vacationCarryDays: 0,
+  vacationCarryFrom: '',
+  vacationExpiry: '02-28',
 };
 
 export function useSettings() {
