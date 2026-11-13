@@ -15,7 +15,22 @@ export function useVacations() {
     [setVacationDates]
   );
 
+  /** Adds (on) or removes (off) every date in `dates` at once. */
+  const setMany = useCallback(
+    (dates: string[], on: boolean) => {
+      setVacationDates((prev) => {
+        const next = new Set(prev);
+        for (const d of dates) {
+          if (on) next.add(d);
+          else next.delete(d);
+        }
+        return [...next].sort();
+      });
+    },
+    [setVacationDates]
+  );
+
   const isVacation = useCallback((date: string) => vacationDates.includes(date), [vacationDates]);
 
-  return { vacationDates, toggle, isVacation };
+  return { vacationDates, toggle, setMany, isVacation };
 }

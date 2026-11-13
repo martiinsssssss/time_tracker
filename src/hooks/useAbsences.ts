@@ -27,8 +27,20 @@ export function useAbsences() {
     [setAbsences]
   );
 
+  /** Marks every date in `dates` with `reason` (reason null = clears them). */
+  const setMany = useCallback(
+    (dates: string[], reason: AbsenceReason | null) => {
+      setAbsences((prev) => {
+        const rest = prev.filter((a) => !dates.includes(a.date));
+        const added = reason ? dates.map((date) => ({ date, reason })) : [];
+        return [...rest, ...added].sort((a, b) => a.date.localeCompare(b.date));
+      });
+    },
+    [setAbsences]
+  );
+
   const absenceDates = useMemo(() => absences.map((a) => a.date), [absences]);
   const byDate = useMemo(() => new Map(absences.map((a) => [a.date, a.reason])), [absences]);
 
-  return { absences, absenceDates, byDate, toggle };
+  return { absences, absenceDates, byDate, toggle, setMany };
 }

@@ -2,9 +2,8 @@ import { CalendarRange, ChevronRight, HeartPulse, PalmtreeIcon, PartyPopper } fr
 import { useNow } from '../hooks/useNow';
 import { useSettings } from '../hooks/useSettings';
 import { useWeekPlan } from '../hooks/useWeekPlan';
-import { useOutOfOffice } from '../hooks/useOutOfOffice';
 import { formatHM, formatShort, formatSigned } from '../lib/time';
-import { skipKey } from '../lib/week';
+import { DayMenu } from './DayMenu';
 
 const WEEKDAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const WEEKDAY_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -15,10 +14,13 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 export function WeekCard() {
   const now = useNow(1000);
   const plan = useWeekPlan(now);
-  const { setSkipped } = useOutOfOffice();
   const { settings } = useSettings();
   const workdayMs = settings.workdayHours * HOUR;
   const weekdays = plan.days.filter((d) => d.offReason !== 'weekend');
+  const capMs = settings.maxDailyHours > 0 ? settings.maxDailyHours * HOUR : 0;
+  // One scale for every day, so bar lengths compare across the week.
+  const scaleMs = Math.max(capMs, ...weekdays.map((d) => Math.max(d.plannedMs, d.workedMs)), workdayMs);
+  const pctOf = (ms: number) => `${Math.max(0, (ms / scaleMs) * 100)}%`;
   const makeUpDays = plan.days.filter((d) => !d.isPast && d.makeUpMs > 0).map((d) => WEEKDAY_NAMES[d.weekday]);
   // Sub-minute differences come from rounding each day to the minute — not worth a message.
   const showAhead = Math.abs(plan.aheadMs) >= 60_000;
@@ -91,6 +93,13 @@ export function WeekCard() {
         </div>
       </div>
 
+      <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3 text-[11px] text-slate-500 dark:text-slate-400">
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-indigo-500" /> Worked</span>
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-slate-300 dark:bg-slate-500" /> Usual hours left</span>
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-amber-400" /> Make-up</span>
+        {capMs > 0 && <span className="flex items-center gap-1.5"><span className="w-0.5 h-3 bg-rose-400" /> Max {formatShort(capMs)}</span>}
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {weekdays.map((day) => {
           const pct = day.plannedMs > 0 ? Math.min(100, (day.workedMs / day.plannedMs) * 100) : 0;
@@ -127,10 +136,13 @@ export function WeekCard() {
                     <PalmtreeIcon size={15} aria-label="Vacation" />
                   </span>
                 )}
+                <span className="ml-auto">
+                  <DayMenu day={day} dayName={WEEKDAY_FULL[day.weekday]} />
+                </span>
               </div>
 
               <div
-                className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden"
+                className="relative w-full h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden flex"
                 role="progressbar"
                 aria-label={`${WEEKDAY_FULL[day.weekday]} progress`}
                 aria-valuemin={0}
@@ -138,10 +150,17 @@ export function WeekCard() {
                 aria-valuenow={Math.round(pct)}
                 aria-valuetext={day.isWorking ? `${formatShort(day.workedMs)} of ${formatShort(day.plannedMs)}` : undefined}
               >
-                <div
-                  className={`h-full rounded-full transition-all ${done ? 'bg-emerald-500' : 'bg-indigo-500'}`}
-                  style={{ width: `${pct}%` }}
-                />
+                {/* worked · usual hours still to do · make-up still to do, on the shared scale */}
+                <div className={`h-full transition-all ${done ? 'bg-emerald-500' : 'bg-indigo-500'}`} style={{ width: pctOf(day.workedMs) }} />
+                {day.isWorking && !day.isPast && (
+                  <>
+                    <div className="h-full bg-slate-300 dark:bg-slate-500" style={{ width: pctOf(Math.min(day.baseMs, day.plannedMs) - day.workedMs) }} />
+                    <div className="h-full bg-amber-400 dark:bg-amber-500/80" style={{ width: pctOf(day.plannedMs - Math.max(day.workedMs, day.baseMs)) }} />
+                  </>
+                )}
+                {capMs > 0 && day.isWorking && (
+                  <div aria-hidden className="absolute inset-y-0 w-0.5 bg-rose-400/80" style={{ left: pctOf(capMs) }} title={`Max ${formatShort(capMs)}`} />
+                )}
               </div>
 
               <p className="text-xs tabular-nums text-slate-600 dark:text-slate-300">
@@ -175,16 +194,6 @@ export function WeekCard() {
                 <p className="text-[11px] font-medium text-sky-700 dark:text-sky-400">Worked during class</p>
               )}
 
-              {day.blocks.length > 0 && (
-                <button
-                  onClick={() => setSkipped(day.blocks.map((b) => skipKey(b.block.id, day.date)), !day.skipped)}
-                  aria-pressed={day.skipped}
-                  aria-label={`${day.skipped ? 'Undo skip' : 'Skip class'} on ${WEEKDAY_FULL[day.weekday]}`}
-                  className="self-start text-[11px] font-medium px-2 py-0.5 rounded-md border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/40 transition-colors"
-                >
-                  {day.skipped ? 'Undo skip' : 'Skip class'}
-                </button>
-              )}
             </div>
           );
         })}

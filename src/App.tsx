@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { LayoutDashboard, History as HistoryIcon, Settings as SettingsIcon, Clock } from 'lucide-react';
+import { LayoutDashboard, History as HistoryIcon, Settings as SettingsIcon, Clock, PalmtreeIcon } from 'lucide-react';
 import { Dashboard } from './components/Dashboard';
 import { SettingsPage } from './components/Settings';
 import { History } from './components/History';
+import { TimeOffPage } from './components/TimeOffPage';
+import { BackupReminder } from './components/BackupReminder';
 import { Toaster } from './components/Toaster';
 import { useTheme } from './hooks/useTheme';
 import { useIntervals } from './hooks/useIntervals';
@@ -10,10 +12,11 @@ import { useNow } from './hooks/useNow';
 import { useWeekPlan } from './hooks/useWeekPlan';
 import { formatHM, formatShort } from './lib/time';
 
-type Tab = 'dashboard' | 'history' | 'settings';
+type Tab = 'dashboard' | 'timeoff' | 'history' | 'settings';
 
 const TABS: { id: Tab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'timeoff', label: 'Time off', icon: PalmtreeIcon },
   { id: 'history', label: 'History', icon: HistoryIcon },
   { id: 'settings', label: 'Settings', icon: SettingsIcon },
 ];
@@ -85,7 +88,13 @@ function App() {
       </header>
 
       <main ref={mainRef} tabIndex={-1} aria-label={TABS.find((t) => t.id === tab)!.label} className="max-w-5xl mx-auto px-4 py-6 outline-none">
-        {tab === 'dashboard' && <Dashboard />}
+        {tab === 'dashboard' && (
+          <div className="flex flex-col gap-6">
+            <BackupReminder onOpenSettings={() => openTab('settings')} />
+            <Dashboard />
+          </div>
+        )}
+        {tab === 'timeoff' && <TimeOffPage />}
         {tab === 'history' && <History />}
         {tab === 'settings' && <SettingsPage />}
       </main>

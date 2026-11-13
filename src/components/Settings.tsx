@@ -1,32 +1,24 @@
 import { useState } from 'react';
-import { Briefcase, CalendarClock, Download, Moon, Palette, PartyPopper, Sun, X } from 'lucide-react';
+import { Briefcase, Download, Moon, Palette, PalmtreeIcon, Repeat, Scale, Sun } from 'lucide-react';
 import { useSettings } from '../hooks/useSettings';
 import { useHolidays } from '../hooks/useHolidays';
-import { listPresets } from '../lib/holidaysData';
 import { useIntervals } from '../hooks/useIntervals';
 import { useTheme } from '../hooks/useTheme';
 import { useOutOfOffice } from '../hooks/useOutOfOffice';
 import { useWeekPlan } from '../hooks/useWeekPlan';
 import { useNow } from '../hooks/useNow';
-import { blockLostMinutes, parseHM } from '../lib/week';
-import { formatHM, formatSigned, weekStartKey } from '../lib/time';
-import type { OutOfOfficeBlock } from '../types';
-
-const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const MONDAY_FIRST = [1, 2, 3, 4, 5, 6, 0];
-
-function describeBlock(b: OutOfOfficeBlock): string {
-  const when = b.kind === 'weekly' ? `Every ${WEEKDAY_NAMES[b.weekday ?? 0]}` : b.date;
-  const pause = b.breakStart && b.breakEnd ? ` (break ${b.breakStart}–${b.breakEnd})` : '';
-  return `${when} · ${b.start}–${b.end}${pause}`;
-}
+import { formatSigned, weekStartKey } from '../lib/time';
+import { Section } from './Section';
+import { RecoveryPreview } from './RecoveryPreview';
+import { VacationExpiryInput } from './VacationExpiryInput';
+import { markExported } from '../lib/backup';
 
 export function SettingsPage() {
   const { settings, update } = useSettings();
-  const { holidays, loadPreset, addHoliday, removeHoliday } = useHolidays();
+  const { holidays } = useHolidays();
   const { intervals } = useIntervals();
   const { theme, toggle: toggleTheme } = useTheme();
-  const { blocks, skips, addBlock, removeBlock } = useOutOfOffice();
+  const { blocks, skips } = useOutOfOffice();
   const { carryInMs } = useWeekPlan(useNow(60_000));
 
   // The sign is kept locally too, so picking "−" sticks while the amount is still 0.
@@ -37,60 +29,6 @@ export function SettingsPage() {
     const total = Math.max(0, Math.floor(hours || 0)) * 60 + Math.max(0, Math.floor(minutes || 0));
     setSignChoice(sign);
     update({ balanceInitialMinutes: total === 0 ? 0 : sign * total });
-  }
-  const presets = listPresets();
-
-  const [newDate, setNewDate] = useState('');
-  const [newName, setNewName] = useState('');
-  const [presetMsg, setPresetMsg] = useState<string | null>(null);
-
-  const [oooKind, setOooKind] = useState<OutOfOfficeBlock['kind']>('weekly');
-  const [oooWeekday, setOooWeekday] = useState(2);
-  const [oooDate, setOooDate] = useState('');
-  const [oooStart, setOooStart] = useState('13:00');
-  const [oooEnd, setOooEnd] = useState('18:00');
-  const [oooHasBreak, setOooHasBreak] = useState(true);
-  const [oooBreakStart, setOooBreakStart] = useState('14:00');
-  const [oooBreakEnd, setOooBreakEnd] = useState('15:00');
-  const [oooLabel, setOooLabel] = useState('');
-
-  const oooDraft = {
-    start: oooStart,
-    end: oooEnd,
-    breakStart: oooHasBreak ? oooBreakStart : undefined,
-    breakEnd: oooHasBreak ? oooBreakEnd : undefined,
-  };
-  const oooLostMinutes = blockLostMinutes(oooDraft);
-  const oooValid =
-    parseHM(oooEnd) > parseHM(oooStart) &&
-    (!oooHasBreak || parseHM(oooBreakEnd) > parseHM(oooBreakStart)) &&
-    (oooKind === 'weekly' || /^\d{4}-\d{2}-\d{2}$/.test(oooDate));
-
-  function handleAddOutOfOffice() {
-    if (!oooValid) return;
-    addBlock({
-      kind: oooKind,
-      ...(oooKind === 'weekly' ? { weekday: oooWeekday } : { date: oooDate }),
-      ...oooDraft,
-      label: oooLabel.trim() || undefined,
-    });
-    setOooLabel('');
-  }
-
-  function handleLoadPreset(city: string, year: string) {
-    const added = loadPreset(city, year);
-    setPresetMsg(
-      added > 0
-        ? `Added ${added} holidays from ${city} ${year}.`
-        : `${city} ${year} holidays were already loaded.`
-    );
-  }
-
-  function handleAddHoliday() {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate) || !newName.trim()) return;
-    addHoliday(newDate, newName.trim());
-    setNewDate('');
-    setNewName('');
   }
 
   function exportData() {
@@ -110,20 +48,15 @@ export function SettingsPage() {
     a.download = `time-tracker-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    markExported();
   }
 
   const inputClass =
     'border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 rounded-lg px-3 py-2';
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4 flex items-center gap-2">
-          <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center">
-            <Palette size={17} strokeWidth={2.25} />
-          </span>
-          Appearance
-        </h2>
+    <div className="flex flex-col gap-4">
+      <Section id="appearance" icon={Palette} title="Appearance" tone="slate">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {theme === 'dark' ? <Moon size={16} className="text-slate-400" /> : <Sun size={16} className="text-amber-400" />}
@@ -147,16 +80,10 @@ export function SettingsPage() {
             />
           </button>
         </div>
-      </div>
+      </Section>
 
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4 flex items-center gap-2">
-          <span className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-            <Briefcase size={17} strokeWidth={2.25} />
-          </span>
-          Workday
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <Section id="workday" icon={Briefcase} title="Workday" tone="indigo" summary={`${settings.workdayHours}h/day · ${settings.weeklyTargetHours}h/week`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
             Target hours per day
             <input
@@ -181,61 +108,6 @@ export function SettingsPage() {
               className={inputClass}
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-            Vacation days per year
-            <input
-              type="number"
-              min={0}
-              max={365}
-              step={1}
-              value={settings.vacationDaysTotal}
-              onChange={(e) => update({ vacationDaysTotal: Number(e.target.value) })}
-              className={inputClass}
-            />
-          </label>
-        </div>
-
-        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Leftover vacation days</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 max-w-md">
-            Each year's days stay usable until the expiry date of the following year. Vacation
-            uses the oldest days first; once they run out, it takes from the new year's allowance.
-          </p>
-          <div className="flex flex-wrap items-end gap-3">
-            <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-              Days left
-              <input
-                type="number"
-                min={0}
-                max={365}
-                step={1}
-                value={settings.vacationCarryDays}
-                onChange={(e) => update({ vacationCarryDays: Math.max(0, Number(e.target.value)) })}
-                className={`${inputClass} w-24`}
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-              As of
-              <input
-                type="date"
-                value={settings.vacationCarryFrom}
-                onChange={(e) => update({ vacationCarryFrom: e.target.value })}
-                className={inputClass}
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-              Expire on (next year)
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="\d{2}-\d{2}"
-                placeholder="MM-DD"
-                value={settings.vacationExpiry}
-                onChange={(e) => update({ vacationExpiry: e.target.value })}
-                className={`${inputClass} w-28`}
-              />
-            </label>
-          </div>
         </div>
 
         <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
@@ -259,7 +131,10 @@ export function SettingsPage() {
             rounds down to 8h. Set to 0 to turn this off.
           </p>
         </div>
+      </Section>
 
+      <Section id="recovery" icon={Repeat} title="Making up hours" tone="amber" summary={`${settings.keepFridayNormal ? 'Friday normal' : 'All days'} · max ${settings.maxDailyHours > 0 ? `${settings.maxDailyHours}h` : 'none'}`}>
+        <RecoveryPreview />
         <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
           <label className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-200 max-w-md">
             <input
@@ -294,9 +169,58 @@ export function SettingsPage() {
             Set to 0 for no limit.
           </p>
         </div>
+      </Section>
 
+      <Section id="vacation" icon={PalmtreeIcon} title="Vacation days" tone="slate" summary={`${settings.vacationDaysTotal} per year`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
+            Vacation days per year
+            <input
+              type="number"
+              min={0}
+              max={365}
+              step={1}
+              value={settings.vacationDaysTotal}
+              onChange={(e) => update({ vacationDaysTotal: Number(e.target.value) })}
+              className={inputClass}
+            />
+          </label>
+        </div>
         <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Hour bank</h3>
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Leftover vacation days</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 max-w-md">
+            Each year's days stay usable until the expiry date of the following year. Vacation
+            uses the oldest days first; once they run out, it takes from the new year's allowance.
+          </p>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
+              Days left
+              <input
+                type="number"
+                min={0}
+                max={365}
+                step={1}
+                value={settings.vacationCarryDays}
+                onChange={(e) => update({ vacationCarryDays: Math.max(0, Number(e.target.value)) })}
+                className={`${inputClass} w-24`}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
+              As of
+              <input
+                type="date"
+                value={settings.vacationCarryFrom}
+                onChange={(e) => update({ vacationCarryFrom: e.target.value })}
+                className={inputClass}
+              />
+            </label>
+            <VacationExpiryInput value={settings.vacationExpiry} onChange={(v) => update({ vacationExpiry: v })} className={inputClass} />
+          </div>
+        </div>
+      </Section>
+
+      <Section id="bank" icon={Scale} title="Hour bank" tone="emerald" summary={formatSigned(carryInMs)}>
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 max-w-md">
             Hours worked above or below each week's target carry over to the next week: being
             ahead lowers this week's target, being behind raises it. Only complete weeks since the
@@ -366,229 +290,9 @@ export function SettingsPage() {
             <span className="text-xs text-slate-500 dark:text-slate-400">(carried into this week)</span>
           </p>
         </div>
-      </div>
+      </Section>
 
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-1 flex items-center gap-2">
-          <span className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 flex items-center justify-center">
-            <CalendarClock size={17} strokeWidth={2.25} />
-          </span>
-          Out of office
-        </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 max-w-xl">
-          Hours you can't work (e.g. classes). They lower that day's target and are spread as
-          make-up time over the other days of the same week — your weekly target stays the same.
-        </p>
-
-        <div className="flex gap-1 bg-slate-100 dark:bg-slate-900 rounded-xl p-1 w-fit mb-4">
-          {(['weekly', 'date'] as const).map((k) => (
-            <button
-              key={k}
-              onClick={() => setOooKind(k)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                oooKind === k
-                  ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-              }`}
-            >
-              {k === 'weekly' ? 'Every week' : 'Specific date'}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap items-end gap-3">
-          {oooKind === 'weekly' ? (
-            <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-              Day
-              <select
-                value={oooWeekday}
-                onChange={(e) => setOooWeekday(Number(e.target.value))}
-                className={inputClass}
-              >
-                {MONDAY_FIRST.map((d) => (
-                  <option key={d} value={d}>
-                    {WEEKDAY_NAMES[d]}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : (
-            <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-              Date
-              <input type="date" value={oooDate} onChange={(e) => setOooDate(e.target.value)} className={inputClass} />
-            </label>
-          )}
-          <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-            From
-            <input type="time" value={oooStart} onChange={(e) => setOooStart(e.target.value)} className={inputClass} />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-            To
-            <input type="time" value={oooEnd} onChange={(e) => setOooEnd(e.target.value)} className={inputClass} />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300 flex-1 min-w-[160px]">
-            Label (optional)
-            <input
-              type="text"
-              value={oooLabel}
-              onChange={(e) => setOooLabel(e.target.value)}
-              placeholder="e.g. Classes"
-              className={inputClass}
-            />
-          </label>
-        </div>
-
-        <div className="flex flex-wrap items-end gap-3 mt-3">
-          <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 h-10">
-            <input
-              type="checkbox"
-              checked={oooHasBreak}
-              onChange={(e) => setOooHasBreak(e.target.checked)}
-              className="w-4 h-4 accent-sky-600"
-            />
-            Includes a break
-          </label>
-          {oooHasBreak && (
-            <>
-              <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-                Break from
-                <input type="time" value={oooBreakStart} onChange={(e) => setOooBreakStart(e.target.value)} className={inputClass} />
-              </label>
-              <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-                Break to
-                <input type="time" value={oooBreakEnd} onChange={(e) => setOooBreakEnd(e.target.value)} className={inputClass} />
-              </label>
-            </>
-          )}
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Work hours lost:{' '}
-            <span className="font-semibold text-sky-600 dark:text-sky-400 tabular-nums">
-              {oooValid ? formatHM(oooLostMinutes * 60_000) : '—'}
-            </span>
-          </p>
-          <button
-            onClick={handleAddOutOfOffice}
-            disabled={!oooValid}
-            className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Add
-          </button>
-        </div>
-
-        <ul className="flex flex-col gap-1 mt-4 max-h-64 overflow-y-auto">
-          {blocks.length === 0 && (
-            <li className="text-slate-500 dark:text-slate-400 text-sm">No out-of-office time configured yet.</li>
-          )}
-          {blocks.map((b) => (
-            <li
-              key={b.id}
-              className="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg px-3 py-2 text-sm"
-            >
-              <span className="text-slate-600 dark:text-slate-300">
-                {describeBlock(b)}
-                {b.label && <span className="text-slate-500 dark:text-slate-400"> — {b.label}</span>}
-                <span className="text-sky-600 dark:text-sky-400 font-medium"> · {formatHM(blockLostMinutes(b) * 60_000)} lost</span>
-              </span>
-              <button
-                onClick={() => removeBlock(b.id)}
-                aria-label={`Remove out-of-office block: ${describeBlock(b)}`}
-                className="p-1 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
-              >
-                <X size={15} />
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4 flex items-center gap-2">
-          <span className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-            <PartyPopper size={17} strokeWidth={2.25} />
-          </span>
-          Holidays
-        </h2>
-
-        {presets.length > 0 && (
-          <div className="mb-4">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Load a preset:</p>
-            <div className="flex flex-wrap gap-2">
-              {presets.map((p) => (
-                <button
-                  key={`${p.city}-${p.year}`}
-                  onClick={() => handleLoadPreset(p.city, p.year)}
-                  className="px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-sm font-medium hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800"
-                >
-                  {p.city} {p.year} ({p.count})
-                </button>
-              ))}
-            </div>
-            {presetMsg && <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">{presetMsg}</p>}
-          </div>
-        )}
-
-        <div className="flex flex-wrap items-end gap-2 mb-4">
-          <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300">
-            Date
-            <input
-              type="date"
-              value={newDate}
-              onChange={(e) => setNewDate(e.target.value)}
-              className={inputClass}
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-slate-600 dark:text-slate-300 flex-1 min-w-[160px]">
-            Name
-            <input
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="e.g. Company anniversary"
-              className={inputClass}
-            />
-          </label>
-          <button
-            onClick={handleAddHoliday}
-            className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700"
-          >
-            Add
-          </button>
-        </div>
-
-        <ul className="flex flex-col gap-1 max-h-64 overflow-y-auto">
-          {holidays.length === 0 && (
-            <li className="text-slate-500 dark:text-slate-400 text-sm">No holidays configured yet.</li>
-          )}
-          {holidays.map((h) => (
-            <li
-              key={h.date}
-              className="flex items-center justify-between bg-slate-50 dark:bg-slate-700/50 rounded-lg px-3 py-2 text-sm"
-            >
-              <span className="text-slate-600 dark:text-slate-300">
-                {h.date} — {h.name}
-              </span>
-              <button
-                onClick={() => removeHoliday(h.date)}
-                aria-label={`Remove holiday: ${h.name}`}
-                className="p-1 rounded-md text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
-              >
-                <X size={15} />
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
-        <h2 className="text-slate-800 dark:text-slate-100 font-bold text-lg mb-4 flex items-center gap-2">
-          <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center">
-            <Download size={17} strokeWidth={2.25} />
-          </span>
-          Data
-        </h2>
+      <Section id="data" icon={Download} title="Data" tone="slate">
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
           Everything is stored locally in this browser. You can export a backup at any time.
         </p>
@@ -599,7 +303,7 @@ export function SettingsPage() {
           <Download size={16} />
           Export backup (JSON)
         </button>
-      </div>
+      </Section>
     </div>
   );
 }

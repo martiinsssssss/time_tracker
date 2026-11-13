@@ -37,7 +37,13 @@ export function TodayCard() {
     .filter((i) => i.end && dateKeyOf(i.start) === today)
     .reduce<string | null>((latest, i) => (!latest || i.end! > latest ? i.end : latest), null);
 
+  // When the day's target is met if you keep going (or start) right now.
+  const finishAt = targetMs > 0 && !complete ? fmtTime(new Date(now + leftMs).toISOString()) : null;
+  const overCap = settings.maxDailyHours > 0 && targetMs > settings.maxDailyHours * 3_600_000;
+
   const notes: { text: string; tone: string }[] = [];
+  if (overCap)
+    notes.push({ text: `above your ${settings.maxDailyHours}h max — the week can't fit the make-up otherwise`, tone: 'text-rose-600 dark:text-rose-400' });
   if (plan.today.outOfOfficeMs > 0)
     notes.push({ text: `${formatShort(plan.today.outOfOfficeMs)} out of office`, tone: 'text-sky-700 dark:text-sky-400' });
   if (plan.today.workedDuringClass) notes.push({ text: 'worked during class', tone: 'text-sky-700 dark:text-sky-400' });
@@ -150,7 +156,15 @@ export function TodayCard() {
                   Daily goal reached
                 </span>
               ) : (
-                <span className="font-semibold text-slate-700 dark:text-slate-200">{formatHM(leftMs)} left today</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
+                  {formatHM(leftMs)} left today
+                  {finishAt && (
+                    <span className="font-normal text-slate-500 dark:text-slate-400">
+                      {' · '}
+                      {running ? 'done at' : 'start now, done at'} <span className="font-semibold text-slate-800 dark:text-slate-100">{finishAt}</span>
+                    </span>
+                  )}
+                </span>
               )}
               {targetMs > 0 && <span className="text-slate-500 dark:text-slate-400">target {formatShort(targetMs)}</span>}
             </div>

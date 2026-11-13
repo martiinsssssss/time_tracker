@@ -15,8 +15,10 @@ export function useOutOfOffice() {
   const [skips, setSkips] = useLocalStorage<string[]>(SKIPS_KEY, []);
 
   const addBlock = useCallback(
-    (block: Omit<OutOfOfficeBlock, 'id'>) => {
-      setBlocks((prev) => [...prev, { ...block, id: uid() }]);
+    (block: Omit<OutOfOfficeBlock, 'id'>): string => {
+      const id = uid();
+      setBlocks((prev) => [...prev, { ...block, id }]);
+      return id;
     },
     [setBlocks]
   );
@@ -27,6 +29,14 @@ export function useOutOfOffice() {
       setSkips((prev) => prev.filter((k) => !k.startsWith(`${id}@`)));
     },
     [setBlocks, setSkips]
+  );
+
+  /** Puts back a removed block with its original id (for undo). */
+  const restoreBlock = useCallback(
+    (block: OutOfOfficeBlock) => {
+      setBlocks((prev) => (prev.some((b) => b.id === block.id) ? prev : [...prev, block]));
+    },
+    [setBlocks]
   );
 
   /** Marks (or unmarks) the given skip keys as skipped. */
@@ -44,5 +54,5 @@ export function useOutOfOffice() {
     [setSkips]
   );
 
-  return { blocks, skips, addBlock, removeBlock, setSkipped };
+  return { blocks, skips, addBlock, removeBlock, restoreBlock, setSkipped };
 }

@@ -42,19 +42,23 @@ function buildMonth(year: number, month: number): DayCell[] {
   return cells;
 }
 
-export function Calendar() {
+/** `page` = the Time off tab: always open, no PTO badge (the page shows its own summary). */
+export function Calendar({ page = false }: { page?: boolean }) {
   // Ticks each minute so today's mark follows a midnight rollover like the rest of the page.
   const now = new Date(useNow(60_000));
   const today = todayKey(now);
-  const [open, setOpen] = useLocalStorage<boolean>('tt.ui.calendarOpen', false);
+  const [storedOpen, setOpen] = useLocalStorage<boolean>('tt.ui.calendarOpen', false);
+  const open = page || storedOpen;
+  // Last plain-clicked day: Shift+click on another marks every free working day in between.
+  const anchor = useRef<string | null>(null);
   const [cursor, setCursor] = useState({ year: now.getFullYear(), month: now.getMonth() });
   // Roving focus: one day is tabbable, arrow keys move it.
   const [focusDate, setFocusDate] = useState(today);
   const moveFocus = useRef(false);
   const cellRefs = useRef(new Map<string, HTMLButtonElement>());
   const { holidays } = useHolidays();
-  const { vacationDates, toggle } = useVacations();
-  const { byDate: absenceByDate, toggle: toggleAbsence } = useAbsences();
+  const { vacationDates, toggle, setMany: setVacationMany } = useVacations();
+  const { byDate: absenceByDate, toggle: toggleAbsence, setMany: setAbsenceMany } = useAbsences();
   // What clicking a working day marks: 'vacation' or a justified-absence reason.
   const [markMode, setMarkMode] = useLocalStorage<'vacation' | AbsenceReason>('tt.ui.calendarMark', 'vacation');
   const { settings } = useSettings();
@@ -68,7 +72,7 @@ export function Calendar() {
   const monthPrefix = `${cursor.year}-${String(cursor.month + 1).padStart(2, '0')}`;
   const tabbableDate = focusDate.startsWith(monthPrefix) ? focusDate : `${monthPrefix}-01`;
 
-  const pools = useMemo(() => openPools(vacationPools(vacationDates, settings), today), [vacationDates, settings, today]);
+  const pools = openPools(vacationPools(vacationDates, settings), today);
 
   useEffect(() => {
     if (!moveFocus.current) return;
@@ -85,6 +89,31 @@ export function Calendar() {
   function goToday() {
     setCursor({ year: now.getFullYear(), month: now.getMonth() });
     setFocusDate(today);
+  }
+
+  /** Free working days from `a` to `b` (either order), inclusive. */
+  function freeDaysBetween(a: string, b: string): string[] {
+    const [from, to] = a < b ? [a, b] : [b, a];
+    const out: string[] = [];
+    for (const d = parseDateKey(from); todayKey(d) <= to; d.setDate(d.getDate() + 1)) {
+      const key = todayKey(d);
+      const weekend = d.getDay() === 0 || d.getDay() === 6;
+      if (!weekend && !holidaySet.has(key) && !vacationSet.has(key) && !absenceByDate.has(key)) out.push(key);
+    }
+    return out;
+  }
+
+  function markRange(to: string) {
+    const dates = freeDaysBetween(anchor.current!, to);
+    anchor.current = to;
+    if (dates.length === 0) return;
+    const what = markMode === 'vacation' ? 'vacation' : ABSENCE_LABELS[markMode].toLowerCase();
+    if (markMode === 'vacation') setVacationMany(dates, true);
+    else setAbsenceMany(dates, markMode);
+    showToast({
+      message: `Marked ${dates.length} day${dates.length === 1 ? '' : 's'} as ${what}`,
+      action: { label: 'Undo', run: () => (markMode === 'vacation' ? setVacationMany(dates, false) : setAbsenceMany(dates, null)) },
+    });
   }
 
   function onGridKey(e: KeyboardEvent, date: string) {
@@ -105,6 +134,14 @@ export function Calendar() {
     >
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h2 id="calendar-heading" className="text-slate-800 dark:text-slate-100 font-bold text-lg">
+          {page ? (
+            <span className="flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+                <CalendarDays size={17} strokeWidth={2.25} aria-hidden />
+              </span>
+              Calendar
+            </span>
+          ) : (
           <button
             onClick={() => setOpen(!open)}
             aria-expanded={open}
@@ -117,8 +154,9 @@ export function Calendar() {
             Calendar
             <ChevronDown size={18} aria-hidden className={`text-slate-400 dark:text-slate-500 transition-transform ${open ? 'rotate-180' : ''}`} />
           </button>
+          )}
         </h2>
-        <div className="flex items-center gap-2 text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-full font-medium tabular-nums">
+        {!page && <div className="flex items-center gap-2 text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-full font-medium tabular-nums">
           <PalmtreeIcon size={15} aria-hidden />
           {pools.map((p, i) => (
             <span key={p.year} title={`${p.used} of ${p.total} used · usable ${formatDay(p.start)} – ${formatDay(p.end)}`}>
@@ -127,7 +165,7 @@ export function Calendar() {
               {i === 0 && pools.length > 1 && <span className="text-slate-500 dark:text-slate-400 font-normal"> (until {formatDay(p.end)})</span>}
             </span>
           ))}
-        </div>
+        </div>}
       </div>
 
       {open && (
@@ -207,8 +245,13 @@ export function Calendar() {
                   tabIndex={date === tabbableDate ? 0 : -1}
                   onKeyDown={(e) => onGridKey(e, date)}
                   onFocus={() => setFocusDate(date)}
-                  onClick={() => {
+                  onClick={(e) => {
                     if (!canToggle) return;
+                    if (e.shiftKey && anchor.current && anchor.current !== date) {
+                      markRange(date);
+                      return;
+                    }
+                    anchor.current = date;
                     // An existing mark is removed whatever the mode; a free day gets the current mode.
                     if (isAbsence) {
                       toggleAbsence(date, absenceReason);
@@ -280,7 +323,7 @@ export function Calendar() {
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full border border-sky-500 inline-block" /> Class skipped
             </span>
-            <span className="basis-full">Click a working day to mark it; click a marked day to clear it. Justified absences lower the target and don't use PTO. Arrow keys move between days.</span>
+            <span className="basis-full">Click a working day to mark it, Shift+click another to mark the whole range; click a marked day to clear it. Justified absences lower the target and don't use PTO. Arrow keys move between days.</span>
           </div>
         </div>
       )}
